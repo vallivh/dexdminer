@@ -21,5 +21,3 @@ qry3 <- m$aggregate('[
 
 x <- m$find()
 typeof(x)
-str(x)
-x[1]
