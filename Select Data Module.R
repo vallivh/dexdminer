@@ -9,11 +9,12 @@ m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", db = "m
 
 m$count()
 collections <- m$run('{"listCollections":1}')
+df_runtime = data.frame()
 
 ui <- fluidPage(
   selectInput(inputId = "selectedColl", label = "Please select a dataset", choices = collections$cursor$firstBatch$name),
   uiOutput("selectYear"),
-  submitButton("Load Data"),
+  actionButton("load", "Load Data"),
   tableOutput("table")
 )
 
@@ -29,6 +30,11 @@ server <- function(input, output) {
   })
   
   output$table <- renderTable(dataset()[c(input$varChoice)])
+  
+  observeEvent(input$load, {
+    df_runtime = dataset()
+    print(str(dataset()))
+  })
 }
 
 shinyApp(ui = ui, server = server)
