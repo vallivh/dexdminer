@@ -1,3 +1,3 @@
 # rmongo-tm
 
-After a lot of stupid mistakes I am starting to get this.
+Tutorial test of github with RStudio as well as R, MongoDB and Shiny.
