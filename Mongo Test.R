@@ -2,8 +2,9 @@ library(mongolite)
 library(jsonlite)
 library(nycflights13)
 library(ndjson)
+source("MongoDB parser.R")
 
-m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = "music", db = "mongotest")
+m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = "nycflights", db = "mongotest")
 
 getwd()
 
@@ -21,3 +22,6 @@ qry3 <- m$aggregate('[
 
 x <- m$find()
 typeof(x)
+
+qry4 <- m$find('{}', fields = parseFields(c('year', 'month', 'day')))
+qry4

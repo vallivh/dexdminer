@@ -34,11 +34,10 @@ server <- function(input, output) {
   output$table <- renderTable(ds()[c(input$varSelected)])
   
   observeEvent(input$load, {
-    df_runtime = db()$find(query = '{}', fields = parseFields(input$varSelected))
     insertUI(selector = "#load", where = "afterEnd", 
              ui = textInput("success", label = NULL, width = '30%',
                             value = "The dataset has been loaded to RAM and is available for all modules."))
-    print(nrow(df_runtime), ncol(df_runtime))
+    df_runtime = db()$find(query = '{}', fields = parseFields(input$varSelected))
   })
 }
 
