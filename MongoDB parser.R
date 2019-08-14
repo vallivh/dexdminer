@@ -3,3 +3,7 @@ parseFields <- function(flist){
   fullQuery <- paste0("{", inBrackets, "}")
   return(fullQuery) 
 }
+
+parseQuery <- function(...){
+  
+}

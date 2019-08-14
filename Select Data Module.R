@@ -12,17 +12,27 @@ collections <- m$run('{"listCollections":1}')
 df_runtime = data.frame()
 
 ui <- fluidPage(
-  selectInput(inputId = "selectedColl", label = "Please select a dataset", choices = collections$cursor$firstBatch$name),
-  uiOutput("selectVar"),
-  actionButton("load", "Load Data"),
-  tableOutput("table")
+  fluidRow(
+    selectInput(inputId = "selectedColl", 
+                label = "Please select a dataset", 
+                choices = collections$cursor$firstBatch$name)
+  ),
+  fluidRow(
+    column(4,
+           uiOutput("selectVar"),
+           actionButton("load", "Load Data")),
+    column(8,
+           tableOutput("table"))
+  )
 )
 
 server <- function(input, output) {
   
   #connect to collection selected in dropdown
   db <- reactive({
-    mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = input$selectedColl, db = "mongotest")
+    mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", 
+          collection = input$selectedColl, 
+          db = "mongotest")
   })
   
   #return some data for visual overview and to fetch variable names to select
@@ -31,18 +41,29 @@ server <- function(input, output) {
   })  
   
   output$selectVar <- renderUI({
-    checkboxGroupInput("varSelected", "Please select variables", choices = colnames(ds()), 
-                       selected = colnames(ds()), inline = TRUE)
+    
+    checkboxGroupInput("varSelected", 
+                       "Please select variables", 
+                       choices = colnames(ds()), 
+                       selected = colnames(ds()), 
+                       inline = FALSE)
   })
   
-  output$table <- renderTable(ds()[c(input$varSelected)])
+  output$table <- renderTable({
+    rbind(ds()[input$varSelected])
+  })
   
   #when Load Button is clicked, save selected data to global data frame
-  #data limited atm to 10.000 observations for speed!s
+  #data limited atm to 10.000 observations for speed!
   observeEvent(input$load, {
-    insertUI(selector = "#load", where = "afterEnd", 
-             ui = textInput("success", label = NULL, width = '30%',
+    
+    insertUI(selector = "#load", 
+             where = "afterEnd", 
+             ui = textInput(inputId = "success", 
+                            label = NULL, 
+                            width = '80%',
                             value = "The dataset has been loaded to RAM and is available for all modules."))
+    
     df_runtime = db()$find(query = '{}', fields = parseFields(input$varSelected), limit = 10000)
   })
 }

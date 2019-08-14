@@ -20,8 +20,5 @@ qry3 <- m$aggregate('[
           {"$group":{"_id":"$carrier", "average_delay":{"$avg":"$arr_delay"}}}
           ]')
 
-x <- m$find()
-typeof(x)
-
-qry4 <- m$find('{}', fields = parseFields(c('year', 'month', 'day')))
-qry4
+qry4 <- m$find('{}', fields = parseFields(c('year', 'month', 'day')), limit = 100000)
+qry2
