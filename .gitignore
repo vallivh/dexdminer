@@ -24,7 +24,5 @@ vignettes/*.pdf
 *.knit.md
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
-# Data folder (too big)
-Data/
 # DS_Store
 .DS_Store
