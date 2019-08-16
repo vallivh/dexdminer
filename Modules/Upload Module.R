@@ -20,6 +20,7 @@ uploadUI <- function(id){
 #   dataTableOutput("inputView")
 # )
 
+
 upload <- function(input, output, session) {
   
   options(shiny.maxRequestSize = 200*1024^2)
