@@ -1,6 +1,6 @@
+library(shinyalert)
 library(shiny)
-library(mongolite)
-library(jsonlite)
+
 
 uploadUI <- function(id){
   ns <- NS(id)
@@ -10,50 +10,44 @@ uploadUI <- function(id){
               accept = c("json"), 
               buttonLabel = "Select"),
     textInput(ns("coll_name"), "Name the document collection", placeholder = 'e.g. "Instruments"'),
-    actionButton(ns("save"), "Save data as collection")
+    actionButton(ns("save"), "Save data as collection"),
+    useShinyalert()
   )
 }
-
-# mainPanel(
-#   tags$h4("Feel free to explore the data a bit before saving to MongoDB"),
-#   tags$em("It may take a moment for the file to be processed...", id = "temp"),
-#   dataTableOutput("inputView")
-# )
 
 
 upload <- function(input, output, session) {
   
+  #increase the shiny upload limit
   options(shiny.maxRequestSize = 200*1024^2)
-  
-  file <- reactive({
-    file <- input$file
-  })
-  
-  df <- reactive({
-    if (is.null(file()$datapath))
-      return(NULL)
-    else
-      x <- stream_in(file()$datapath)
-    print(x)
-  })
-  
-  # output$inputView <- renderDataTable({
-  #   if (is.data.frame(df()))
-  #     removeUI(selector = "#temp")
-  #   df()
-  # })
   
   observeEvent(input$save, {
     
-    if (input$coll_name == "")
-      name <- basename(file()$name)
-    else
-      name <- input$coll_name
+    file <- input$file
+    
+    #check if a file has been uploaded, if not display alert
+    if (is.null(file$datapath)) {
+      shinyalert(title = "No file selected",
+                 text = "Please selected a file to be uploaded first.",
+                 showConfirmButton = TRUE,
+                 timer = 5000)
+    }
+    #if yes, stream in data, save to MongoDB and update button
+    else {
 
-    coll <- mongo(collection = name,
-                  db = "mongotest",
-                  url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
-    coll$insert(df())
-    updateActionButton(session, "save", label = "Saved to MongoDB")
+      dt <- stream_in(file(file$datapath))
+
+      #name for collection is optional, uses filename if none specified
+      if (input$coll_name == "")
+        name <- basename(file$name)
+      else
+        name <- input$coll_name
+
+      coll <- mongo(collection = name,
+                    db = "mongotest",
+                    url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
+      coll$insert(dt)
+      updateActionButton(session, "save", label = "Saved to MongoDB")
+    }
   })
 }
