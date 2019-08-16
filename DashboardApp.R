@@ -3,9 +3,16 @@ library(shinydashboard)
 library(shinyalert)
 library(mongolite)
 library(jsonlite)
+library(ndjson)
+library(nycflights13)
 
 source(paste0(getwd(),"/Modules/Upload Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 
+#Erzeugung der gemeinsamen Datenbasis
+assign("df_runtime", reactiveVal(nycflights13::flights), envir = .GlobalEnv)
+
+#UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
 ui <- dashboardPage(
   dashboardHeader(title = "Testing Tool"),
   dashboardSidebar(
@@ -31,6 +38,9 @@ ui <- dashboardPage(
                      collapsible = TRUE, 
                      collapsed = FALSE),
                  box(title = "...or select an existing one."))
+        ),
+        fluidRow(
+          displayTableUI("table")
         )
       )
     )
@@ -38,7 +48,8 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session){
-  callModule(upload, "upload")
+  callModule(upload, "upload", df_runtime())
+  observeEvent(df_runtime(), {callModule(displayTable, "table", df_runtime())})
 }
 
 shinyApp(ui = ui, server = server)
