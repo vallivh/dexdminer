@@ -1,8 +1,6 @@
 library(shiny)
 library(mongolite)
 library(jsonlite)
-library(tidytext)
-x <- library(janeaustenr)
 
 
 ui <- fluidPage(
@@ -33,8 +31,8 @@ server <- function(input, output, session) {
   })
   
   df <- reactive({
-    if (is.null(file()))
-      tags$p("The file is processing...")
+    if (is.null(file()$datapath))
+      return(NULL)
     else
       stream_in(file()$datapath)
   })
