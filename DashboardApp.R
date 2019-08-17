@@ -7,10 +7,12 @@ library(ndjson)
 library(nycflights13)
 
 source(paste0(getwd(),"/Modules/Upload Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Select Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 
 #Erzeugung der gemeinsamen Datenbasis
 assign("df_runtime", reactiveVal(), envir = .GlobalEnv)
+assign("coll_runtime", reactiveVal(), envir = .GlobalEnv)
 
 #UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
 ui <- dashboardPage(
@@ -24,7 +26,8 @@ ui <- dashboardPage(
       ),
       menuItem(
         "Sentiment Analysis",
-        tabName = "sentiment"
+        tabName = "sentiment",
+        icon = icon("smile")
       )
     )
   ),
@@ -34,12 +37,15 @@ ui <- dashboardPage(
         fluidRow(
           column(6,
                  box(title = "Upload a dataset...",
-                     uploadUI("upload"),
-                     collapsible = TRUE, 
-                     collapsed = FALSE),
-                 box(title = "...or select an existing one."))
+                     uploadUI("upload")),
+                 box(title = "...or select an existing one.",
+                     selectUI("select"))
+          ),
+          column(6,
+                 box(title = "Preprocessing"))
         ),
         fluidRow(
+          tags$h2("Explore the data", style = "text-align:center"),
           displayTableUI("table")
         )
       )
@@ -48,7 +54,8 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session){
-  callModule(upload, "upload", df_runtime())
+  callModule(upload, "upload", df_runtime(), coll_runtime())
+  callModule(select, "select", df_runtime(), coll_runtime())
   observeEvent(df_runtime(), {callModule(displayTable, "table", df_runtime())})
 }
 
