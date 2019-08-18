@@ -3,14 +3,14 @@ source(paste0(getwd(), "/Modules/MongoDB parser.R"), local = TRUE)
 
 #connect to mongoDB and return all collections
 m <- mongoDB()
-collections <- m$run('{"listCollections":1, "nameOnly": true}')
+collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
 
 selectUI <- function(id) {
   ns <- NS(id)
   tagList(
     selectInput(ns("selectData"), 
                 label = "Please select a dataset", 
-                choices = c("", collections$cursor$firstBatch$name),
+                choices = c("", collections),
                 selected = ""),
     uiOutput(ns("selectVar")),
     actionButton(ns("load"), "Load Data")
@@ -21,8 +21,8 @@ selectUI <- function(id) {
 select <- function(input, output, session, df_runtime, coll_runtime) {
   
   observeEvent(coll_runtime(), {
-    collections <- m$run('{"listCollections":1, "nameOnly": true}')
-    updateSelectInput(session, "selectData", selected = coll_runtime())
+    collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
+    updateSelectInput(session, "selectData", choices = collections, selected = coll_runtime())
   })
 
   #connect to collection selected in dropdown
@@ -30,16 +30,12 @@ select <- function(input, output, session, df_runtime, coll_runtime) {
     
     if (input$selectData != "") {
       m <- mongoDB(collection = input$selectData)
-      print(m$info()$stats$size)
-      
-      if (is.null(coll_runtime()) || (input$selectData != coll_runtime())) {
-        dur <- m$info()$stats$size/20000000
-        if (dur > 5)
-          showNotification("The data is processing and will be displayed shortly.",
-                           type = "message",
-                           duration = dur)
-        df_runtime(m$find('{}'))
-      }
+      dur <- m$info()$stats$count/65000
+      if (dur > 4)
+        showNotification("The data is processing and will be displayed shortly.",
+                         type = "warning",
+                         duration = dur)
+      df_runtime(m$find('{}'))
     }
   })
   

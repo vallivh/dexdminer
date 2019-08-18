@@ -18,7 +18,7 @@ uploadUI <- function(id){
 upload <- function(input, output, session, df_runtime, coll_runtime) {
   
   #increase the shiny upload limit
-  options(shiny.maxRequestSize = 200*1024^2)
+  options(shiny.maxRequestSize = 500*1024^2)
   
   df <- reactive({
     file <- input$file
@@ -36,7 +36,7 @@ upload <- function(input, output, session, df_runtime, coll_runtime) {
     dur <- input$file$size/10000000
     if (dur > 5)
       showNotification("The data is processing and will be displayed shortly.", 
-                       type = "message", 
+                       type = "warning", 
                        duration = dur)
     df_runtime(df())
     })
@@ -51,12 +51,10 @@ upload <- function(input, output, session, df_runtime, coll_runtime) {
     }
     #checks for the mandatory collection name
     else if (input$coll_name == "") {
-      print(input$save$label)
       updateTextInput(session, "coll_name", placeholder = "*collection name required")
     }
     #once all is well, file data is streamed in and saved to MongoDB
     else {
-      #updateActionButton(session, "save", label = "Saving...")
       coll <- mongo(collection = input$coll_name,
                     db = "mongotest",
                     url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
