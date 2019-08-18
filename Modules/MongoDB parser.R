@@ -20,4 +20,5 @@ mongoDB <- function(collection = NULL, db = "mongotest") {
     mongo(collection = collection,
           db = db,
           url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
-}
+  }
+

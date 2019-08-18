@@ -9,6 +9,9 @@ print(m)
 
 m$run('{"listCollections": 1, "nameOnly": true}')
 
+m$insert(nycflights13)
+m$count()
+
 qry1 <- m$find('{"month":{ "$in": [1,2] }, "day":1, "carrier":"AA"}', fields = '{"year": true, "month": true, "day": true, "carrier": true}')
 qry2 <- m$distinct("month", query = '{"month":{"$in":[1,2]}}')
 qry3 <- m$aggregate('[
