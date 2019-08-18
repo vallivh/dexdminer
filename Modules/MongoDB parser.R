@@ -7,3 +7,15 @@ parseFields <- function(flist){
 parseQuery <- function(...){
   
 }
+
+mongoDB <- function(db = "mongotest", collection = NULL) {
+  if (missing(collection)) {
+    m <- mongo(db = db,
+               url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
+    return(m)
+  }
+  else
+    mongo(collection = collection,
+          db = db,
+          url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
+}

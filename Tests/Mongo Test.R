@@ -6,6 +6,8 @@ source("MongoDB parser.R")
 
 m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = "nycflights", db = "mongotest")
 
+m$run('{"listCollections": 1, "nameOnly": true}')
+
 m$insert(nycflights13)
 m$count()
 qry1 <- m$find('{"month":{ "$in": [1,2] }, "day":1, "carrier":"AA"}', fields = '{"year": true, "month": true, "day": true, "carrier": true}')
