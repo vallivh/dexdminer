@@ -45,7 +45,7 @@ upload <- function(input, output, session, df_runtime, coll_runtime) {
     #checks if file has been uploaded, if not displays alert
     if (is.null(input$file$datapath)) {
       shinyalert(title = "No file selected",
-                 text = "Please selected a file to be uploaded first.",
+                 text = "Please select a file to be uploaded.",
                  showConfirmButton = TRUE,
                  timer = 5000)
     }

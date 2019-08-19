@@ -9,7 +9,7 @@ selectUI <- function(id) {
   ns <- NS(id)
   tagList(
     selectInput(ns("selectData"), 
-                label = "Please select a dataset", 
+                label = "Please select a collection", 
                 choices = c("", collections),
                 selected = ""),
     uiOutput(ns("selectVar")),
@@ -28,6 +28,8 @@ select <- function(input, output, session, df_runtime, coll_runtime) {
   #connect to collection selected in dropdown
   observeEvent(input$selectData, {
     
+    updateActionButton(session, "load", label = "Load Data")
+    
     if (input$selectData != "") {
       m <- mongoDB(collection = input$selectData)
       dur <- m$info()$stats$count/65000
@@ -41,6 +43,15 @@ select <- function(input, output, session, df_runtime, coll_runtime) {
   
   #when Load Button is clicked, save selected data to global data frame
   observeEvent(input$load, {
-    updateActionButton(session, "load", label = "Loaded to RAM")
+    if (input$selectData != "") {
+      coll_runtime(input$selectData)
+      updateActionButton(session, "load", label = "Loaded to RAM")
+    }
+    else
+      shinyalert(title = "No dataset selected",
+                 text = "Please select a collection from the dropdown menu.",
+                 showConfirmButton = TRUE,
+                 type = "warning",
+                 timer = 5000)
   })
 }

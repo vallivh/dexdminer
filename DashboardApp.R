@@ -38,9 +38,13 @@ ui <- dashboardPage(
         fluidRow(
           column(6,
                  box(title = "Upload a dataset...",
-                     uploadUI("upload")),
+                     uploadUI("upload"),
+                     collapsible = TRUE,
+                     collapsed = TRUE,
+                     width = 12),
                  box(title = "...or select an existing one.",
-                     selectUI("select"))
+                     selectUI("select"),
+                     width = 12)
           ),
           column(6,
                  box(title = "Preprocessing"))
