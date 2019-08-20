@@ -35,15 +35,19 @@ preprocess <- function(input, output, session, coll_runtime) {
   
   # on clicking the Create Button, either creates a new text index or drops and replaces the old one
   observeEvent(input$createIndex, {
-    m <- mongoDB(collection = coll_runtime())
-    
+    m <- mongoDB(collection = req(coll_runtime()))
+    req(input$indexFields)
     if (is.null(tindex()))
       updateActionButton(session, "createIndex", label = "Text Index created")
     else {
       m$index(remove = getTextIndex(m))
       updateActionButton(session, "createIndex", label = "Text Index updated")
     }
-    
-    m$index(add = parseIndex(input$indexFields))
+    withProgress({
+      for (i in 1:10) {
+        incProgress(1/10)
+        m$index(add = parseIndex(input$indexFields))
+      }
+    }, message = "Indexing...", session = session)
   })
-}  
+}

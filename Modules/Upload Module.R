@@ -23,7 +23,7 @@ upload <- function(input, output, session, coll_runtime) {
   # once a file is uploaded, inputs are reset and the data is streamed into the global data frame
   observeEvent(input$file, {
     
-    stream_in(input$file$datapath)
+    df <- stream_in(input$file$datapath)
     updateActionButton(session, "save", label = "Save data as collection")
     updateTextInput(session, "coll_name", value = "")
     
@@ -34,7 +34,7 @@ upload <- function(input, output, session, coll_runtime) {
                        type = "warning", 
                        duration = dur)
     
-    df_runtime(df())
+    df_runtime(df)
     },
     ignoreNULL = TRUE)
   
@@ -56,7 +56,7 @@ upload <- function(input, output, session, coll_runtime) {
       coll <- mongo(collection = input$coll_name,
                     db = "mongotest",
                     url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
-      coll$insert(df())
+      coll$insert(df_runtime())
       updateActionButton(session, "save", label = "Saved to MongoDB")
       coll_runtime(input$coll_name)
     }

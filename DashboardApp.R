@@ -66,6 +66,7 @@ server <- function(input, output, session){
   callModule(select, "select", coll_runtime())
   callModule(preprocess, "prep", coll_runtime())
   observeEvent(df_runtime(), {callModule(displayTable, "table", df_runtime())})
+  session$onSessionEnded(stopApp)
 }
 
 shinyApp(ui = ui, server = server)
