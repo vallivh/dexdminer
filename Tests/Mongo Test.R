@@ -4,13 +4,12 @@ library(nycflights13)
 library(ndjson)
 source(paste0(getwd(), "/Modules/MongoDB parser.R"))
 
-m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = "nycflights", db = "mongotest")
+m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = "Instruments", db = "mongotest")
 print(m)
 
 m$run('{"listCollections": 1, "nameOnly": true}')
 
-m$insert(nycflights13)
-m$count()
+m$index(add = '{"reviewTime":1}')
 
 qry1 <- m$find('{"month":{ "$in": [1,2] }, "day":1, "carrier":"AA"}', fields = '{"year": true, "month": true, "day": true, "carrier": true}')
 qry2 <- m$distinct("month", query = '{"month":{"$in":[1,2]}}')

@@ -8,6 +8,7 @@ library(nycflights13)
 
 source(paste0(getwd(),"/Modules/Upload Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Select Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Preprocess Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 
 #Erzeugung der gemeinsamen Datenbasis
@@ -47,7 +48,9 @@ ui <- dashboardPage(
                      width = 12)
           ),
           column(6,
-                 box(title = "Preprocessing"))
+                 box(title = "Preprocessing",
+                     preprocessUI("prep"),
+                     width = 12))
         ),
         fluidRow(
           tags$h2("Explore the data", style = "text-align:center"),
@@ -59,8 +62,9 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session){
-  callModule(upload, "upload", df_runtime(), coll_runtime())
-  callModule(select, "select", df_runtime(), coll_runtime())
+  callModule(upload, "upload", coll_runtime())
+  callModule(select, "select", coll_runtime())
+  callModule(preprocess, "prep", coll_runtime())
   observeEvent(df_runtime(), {callModule(displayTable, "table", df_runtime())})
 }
 

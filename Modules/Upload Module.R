@@ -15,22 +15,13 @@ uploadUI <- function(id){
 }
 
 
-upload <- function(input, output, session, df_runtime, coll_runtime) {
+upload <- function(input, output, session, coll_runtime) {
   
   #increase the shiny upload limit
   options(shiny.maxRequestSize = 500*1024^2)
   
-  df <- reactive({
-    file <- input$file
-    
-    if (is.null(file$datapath))
-      return (NULL)
-    else{
-      stream_in(file$datapath)
-    } 
-  })
-  
   observeEvent(input$file, {
+    stream_in(input$file$datapath)
     updateActionButton(session, "save", label = "Save data as collection")
     updateTextInput(session, "coll_name", value = "")
     dur <- input$file$size/10000000
@@ -39,15 +30,16 @@ upload <- function(input, output, session, df_runtime, coll_runtime) {
                        type = "warning", 
                        duration = dur)
     df_runtime(df())
-    })
+    },
+    ignoreNULL = TRUE)
   
   observeEvent(input$save, {
     #checks if file has been uploaded, if not displays alert
     if (is.null(input$file$datapath)) {
       shinyalert(title = "No file selected",
                  text = "Please select a file to be uploaded.",
-                 showConfirmButton = TRUE,
-                 timer = 5000)
+                 type = "warning",
+                 showConfirmButton = TRUE)
     }
     #checks for the mandatory collection name
     else if (input$coll_name == "") {

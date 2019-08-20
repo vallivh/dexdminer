@@ -1,4 +1,3 @@
-library(mongolite)
 source(paste0(getwd(), "/Modules/MongoDB parser.R"), local = TRUE)
 
 #connect to mongoDB and return all collections
@@ -18,7 +17,7 @@ selectUI <- function(id) {
 }
 
 
-select <- function(input, output, session, df_runtime, coll_runtime) {
+select <- function(input, output, session, coll_runtime) {
   
   observeEvent(coll_runtime(), {
     collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
@@ -27,9 +26,12 @@ select <- function(input, output, session, df_runtime, coll_runtime) {
 
   #connect to collection selected in dropdown
   observeEvent(input$selectData, {
-    
+    coll_runtime(NULL)
     updateActionButton(session, "load", label = "Load Data")
-    
+  })
+  
+  #when Load Button is clicked, save selected data to global data frame
+  observeEvent(input$load, {
     if (input$selectData != "") {
       m <- mongoDB(collection = input$selectData)
       dur <- m$info()$stats$count/65000
@@ -37,14 +39,8 @@ select <- function(input, output, session, df_runtime, coll_runtime) {
         showNotification("The data is processing and will be displayed shortly.",
                          type = "warning",
                          duration = dur)
-      df_runtime(m$find('{}'))
-    }
-  })
-  
-  #when Load Button is clicked, save selected data to global data frame
-  observeEvent(input$load, {
-    if (input$selectData != "") {
       coll_runtime(input$selectData)
+      df_runtime(m$find('{}'))
       updateActionButton(session, "load", label = "Loaded to RAM")
     }
     else
