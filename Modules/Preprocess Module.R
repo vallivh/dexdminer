@@ -46,4 +46,4 @@ preprocess <- function(input, output, session, coll_runtime) {
     
     m$index(add = parseIndex(input$indexFields))
   })
-}  
+}
