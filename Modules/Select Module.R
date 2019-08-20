@@ -19,18 +19,19 @@ selectUI <- function(id) {
 
 select <- function(input, output, session, coll_runtime) {
   
+  # when a new file is uploaded, it is automatically added and pre-selected
   observeEvent(coll_runtime(), {
     collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
     updateSelectInput(session, "selectData", choices = collections, selected = coll_runtime())
   })
 
-  #connect to collection selected in dropdown
+  # when switching between collections, this resets the button and coll_runtime
   observeEvent(input$selectData, {
     coll_runtime(NULL)
     updateActionButton(session, "load", label = "Load Data")
   })
   
-  #when Load Button is clicked, save selected data to global data frame
+  # when Load Button is clicked, save selected data to global data frame or displays an error message 
   observeEvent(input$load, {
     if (input$selectData != "") {
       m <- mongoDB(collection = input$selectData)

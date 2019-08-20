@@ -17,23 +17,29 @@ uploadUI <- function(id){
 
 upload <- function(input, output, session, coll_runtime) {
   
-  #increase the shiny upload limit
+  # increases the shiny upload limit
   options(shiny.maxRequestSize = 500*1024^2)
   
+  # once a file is uploaded, inputs are reset and the data is streamed into the global data frame
   observeEvent(input$file, {
+    
     stream_in(input$file$datapath)
     updateActionButton(session, "save", label = "Save data as collection")
     updateTextInput(session, "coll_name", value = "")
+    
+    # displays a "in progress" message for big files
     dur <- input$file$size/10000000
     if (dur > 5)
       showNotification("The data is processing and will be displayed shortly.", 
                        type = "warning", 
                        duration = dur)
+    
     df_runtime(df())
     },
     ignoreNULL = TRUE)
   
   observeEvent(input$save, {
+    
     #checks if file has been uploaded, if not displays alert
     if (is.null(input$file$datapath)) {
       shinyalert(title = "No file selected",
