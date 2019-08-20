@@ -6,9 +6,15 @@ parseFields <- function(flist){
   return(fullQuery) 
 }
 
-parseQuery <- function(...){
-  
+parseIndex <- function(tlist, name = NULL){
+  inBrackets <- paste0(paste0('"', tlist, '": "text"'), collapse = ",")
+  fullQuery <- paste0("{", inBrackets, "}")
+  if (!is.null(name))
+    fullQuery <- paste0(fullQuery, ', {"name": "', name, '"}')
+  return(fullQuery)
 }
+
+parseIndex(c("review", "summary"), "textIndex")
 
 mongoDB <- function(collection = NULL, db = "mongotest") {
   if (is.null(collection)) {
