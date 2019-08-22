@@ -1,7 +1,9 @@
 library(mongolite)
 library(jsonlite)
-library(nycflights13)
+library(anytime)
+library(lubridate)
 library(ndjson)
+
 source(paste0(getwd(), "/Modules/MongoDB parser.R"))
 
 m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = "Instruments", db = "mongotest")
@@ -18,11 +20,13 @@ qry3 <- m$aggregate('[
           {"$group":{"_id":"$carrier", "average_delay":{"$avg":"$arr_delay"}}}
           ]')
 
-qry4 <- m$find('{}', fields = parseFields(c('year', 'month', 'day')), limit = 100000)
+qry4 <- m$find('{}', limit = 1)
 
 #Textsuche benötigt text-Index, danach einfach über $find()
 m$index(add = '{"reviewText": "text", "summary": "text"}')
 
-x <- m$find('{"$text":{"$search": "guitar"}}', fields = parseFields("summary"))
-qry1
-nrow(x)
+date <- anytime(qry4$reviewTime)
+day(date)
+
+
+

@@ -23,7 +23,6 @@ upload <- function(input, output, session, coll_runtime) {
   # once a file is uploaded, inputs are reset and the data is streamed into the global data frame
   observeEvent(input$file, {
     
-    df <- stream_in(input$file$datapath)
     updateActionButton(session, "save", label = "Save data as collection")
     updateTextInput(session, "coll_name", value = "")
     
@@ -34,6 +33,7 @@ upload <- function(input, output, session, coll_runtime) {
                        type = "warning", 
                        duration = dur)
     
+    df <- stream_in(input$file$datapath)
     df_runtime(df)
     },
     ignoreNULL = TRUE)

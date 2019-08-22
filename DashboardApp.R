@@ -1,6 +1,7 @@
 library(mongolite)
 library(jsonlite)
 library(ndjson)
+library(readtext)
 library(shiny)
 library(shinydashboard)
 library(shinyalert)
