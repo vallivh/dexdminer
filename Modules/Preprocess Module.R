@@ -7,58 +7,89 @@ preprocessUI <- function(id) {
     selectInput(ns("textField"), 
                 "Which field contains the text?", 
                 choices = NULL),
-    actionButton(ns("createIndex"), "Create Text Index")
+    actionButton(ns("createIndex"), "Create Text Index"),
+    selectInput(ns("dateField"),
+                "Please select a date field (preferably in a unified format).",
+                choices = NULL),
+    checkboxGroupInput(ns("docvars"),
+                       "Select additional variables as docvars for the corpus.",
+                       choices = NULL),
+    actionButton(ns("createDocvars"), "Create Docvars")
   )
 }
 
 
 preprocess <- function(input, output, session, coll_runtime) {
   
-  tindex <- reactiveVal()
+  rv <- reactiveValues(
+    fields = NULL,
+    tindex = NULL,
+    m = NULL
+  )
   
-  # checks for selected collection and updates selectInput accordingly
-  observeEvent(coll_runtime(), ignoreNULL = TRUE, {
+  # checks for selected collection, requests tindex and gets column names
+  # updates tindex and date field
+  observe(priority = 2, {
     
-    m <- mongoDB(collection = coll_runtime())
-    tindex(getTextIndex(m, TRUE))
+    rv$m <- mongoDB(collection = req(coll_runtime()))
+    rv$tindex <- getIndex(rv$m, text = TRUE)
+    rv$fields <- colnames(df_runtime())
     
     updateSelectInput(session, "textField",
-                      choices = c("", colnames(df_runtime())),
-                      selected = tindex())
+                      choices = c("", rv$fields),
+                      selected = rv$tindex)
+    
+    updateSelectInput(session, "dateField",
+                      choices = c("", rv$fields[rv$fields != rv$tindex]))
+  })
+  
+  # checks tindex and date field and updates the docvar choices accordingly
+  # seperate observer ensures correct running order
+  observe({
+    updateCheckboxGroupInput(session, "docvars",
+                             choices = rv$fields[!rv$fields %in% c(rv$tindex, input$dateField)],
+                             inline = TRUE)
   })
   
   # checks if collection already has a text index and updates button accordingly
-  observeEvent(input$textField, ignoreNULL = TRUE, {
+  observeEvent({input$textField
+                coll_runtime()}, ignoreNULL = TRUE, priority = 1, {
     
-    if (is.null(tindex()))
+    if (is.empty(rv$tindex))
       updateActionButton(session, "createIndex", label = "Create Text Index")
-    else if (input$textField == tindex())
-      updateActionButton(session, "createIndex", label = "Text Index updated")
+    else if (input$textField == rv$tindex)
+      updateActionButton(session, "createIndex", label = "Text Index up to date")
     else
       updateActionButton(session, "createIndex", label = "Update Text Index")
   })
   
   # on clicking the Create Button, either creates a new text index or drops and replaces the old one
-  # also displays an alert and updates the button
+  # also updates the button or displays an alert
   observeEvent(input$createIndex, {
-    
-    m <- mongoDB(collection = req(coll_runtime()))
-    
-    # updates the button depending on whether the index is updated or created initially
-    if (is.null(input$textField))
+
+    if (is.empty(input$textField))
       shinyalert(title = "No text field selected",
                  text = "Please select the field that contains the text.",
                  type = "warning",
                  showConfirmButton = TRUE)
-    else if (is.null(tindex())) {
-      updateActionButton(session, "createIndex", label = "Text Index created")
-      m$index(add = parseIndex(input$textField))
+    else {
+      if (is.empty(rv$tindex))
+        updateActionButton(session, "createIndex", label = "Text Index created")
+      else if (input$textField != rv$tindex) {
+        rv$m$index(remove = getTextIndex(rv$m, fields = FALSE, text = TRUE))
+        updateActionButton(session, "createIndex", label = "Text Index updated")
+      }
+      # create text index and update reactive value
+      rv$m$index(add = parseIndex(input$textField))
+      rv$tindex <- getTextIndex(rv$m, text = TRUE)
     }
-    else if (input$textField != tindex()) {
-      m$index(remove = getTextIndex(m))
-      m$index(add = parseIndex(input$textField))
-      updateActionButton(session, "createIndex", label = "Text Index updated")
-    }
-    tindex(getTextIndex(m, TRUE))
+  })
+  
+  observeEvent(input$createDocvars, {
+    df <- rv$m$find('{}', fields = parseFields(c("_id", req(input$dateField))), limit = 500)
+    df$date <- anydate(df[, 2])
+    apply(df, 1, function(x) {rv$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'), 
+                                          update = paste0('{"$set": {"date": "', x[3], '"}}'))})
+    apply(c("date", input$docvars), 1, function(x) {rv$m$index(add = parseIndex(x))})
   })
 }

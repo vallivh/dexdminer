@@ -31,9 +31,16 @@ select <- function(input, output, session, coll_runtime) {
     updateActionButton(session, "load", label = "Load Data")
   })
   
-  # when Load Button is clicked, save selected data to global data frame or displays an error message 
+  # when Load Button is clicked, save selected data to global data frame or display an error message 
   observeEvent(input$load, {
-    if (input$selectData != "") {
+               
+    if (is.empty(input$selectData))
+      shinyalert(title = "No dataset selected",
+                 text = "Please select a collection from the dropdown menu.",
+                 showConfirmButton = TRUE,
+                 type = "warning",
+                 timer = 5000)
+    else {
       m <- mongoDB(collection = input$selectData)
       dur <- m$info()$stats$count/65000
       if (dur > 4)
@@ -44,11 +51,5 @@ select <- function(input, output, session, coll_runtime) {
       df_runtime(m$find('{}'))
       updateActionButton(session, "load", label = "Loaded to RAM")
     }
-    else
-      shinyalert(title = "No dataset selected",
-                 text = "Please select a collection from the dropdown menu.",
-                 showConfirmButton = TRUE,
-                 type = "warning",
-                 timer = 5000)
   })
 }

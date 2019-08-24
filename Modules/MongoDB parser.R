@@ -1,11 +1,11 @@
 library(mongolite)
+library(rapportools)
 
 # makes connecting to MongoDB a lot easier, default db should be changed here
 mongoDB <- function(collection = NULL, db = "mongotest") {
   if (is.null(collection)) {
-    m <- mongo(db = db,
-               url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
-    return(m)
+    mongo(db = db,
+          url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
   }
   else
     mongo(collection = collection,
@@ -13,41 +13,43 @@ mongoDB <- function(collection = NULL, db = "mongotest") {
           url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
 }
 
-# converts a list of fields into a json string to be used in $find(fields = )
+# converts a list of fields into a json string to be used in $find(..., fields = )
 parseFields <- function(flist){
-  inBrackets <- paste0(paste0('"', flist, '": true'), collapse = ",")
+  inBrackets <- paste0(paste0('"', flist, '": 1'), collapse = ",")
   fullQuery <- paste0("{", inBrackets, "}")
   return(fullQuery) 
 }
 
 # makes creating a text index a lot easier
 # could be expanded to indexes in general
-parseIndex <- function(tlist, name = NULL){
-  inBrackets <- paste0(paste0('"', tlist, '": "text"'), collapse = ",")
+parseIndex <- function(field, text = FALSE){
+  if (text)
+    end <- '"text"'
+  else 
+    end <- 1
+  
+  inBrackets <- paste0(paste0('"', field, '": ', end), collapse = ",")
   fullQuery <- paste0("{", inBrackets, "}")
   return(fullQuery)
 }
 
-# finds the text index of a collaction and re-converts it into component fields on demand
+# finds all indexes of a collaction 
+# either returns the text index or all other indexes
+# can return full index names or original field names
 # makes use of the automatic naming of indexes
-getTextIndex <- function(con = NULL, fields = FALSE) {
-  key <- con$index()$textIndexVersion
-  if (is.null(key))
+getIndex <- function(con = NULL, fields = TRUE, text = FALSE) {
+  indexes <- con$index()$name
+  if (text)
+    end <- "_text"
+  else 
+    end <- "_1"
+  
+  index <- grep(paste0(end, "$"), indexes, value = TRUE)
+  if (fields)
+    index <- unlist(strsplit(gsub(end, "", index), "_"))
+
+  if (is.empty(index))
     return(NULL)
-  else {
-    for (i in 1:length(key)) {
-      if (!is.na(key[i])) {
-        indexName <- con$index()$name[i]
-        if (fields)
-          return (unlist(strsplit(gsub("_text", "", indexName), "_")))
-        else
-          return(indexName)
-        break
-      }
-      else {
-        indexName <- NULL
-        next
-      }
-    }
-  }
+  else
+    return(index)
 }

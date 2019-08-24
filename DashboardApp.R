@@ -5,7 +5,7 @@ library(readtext)
 library(shiny)
 library(shinydashboard)
 library(shinyalert)
-library(nycflights13)
+library(anytime)
 
 source(paste0(getwd(),"/Modules/Upload Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Select Module.R"), local = TRUE)
@@ -15,6 +15,7 @@ source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 #Erzeugung der gemeinsamen Datenbasis
 assign("df_runtime", reactiveVal(), envir = .GlobalEnv)
 assign("coll_runtime", reactiveVal(), envir = .GlobalEnv)
+assign("corp_runtime", reactiveVal(), envir = .GlobalEnv)
 
 
 #UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
