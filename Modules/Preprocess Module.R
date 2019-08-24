@@ -7,32 +7,51 @@ preprocessUI <- function(id) {
     selectInput(ns("textField"), 
                 "Which field contains the text?", 
                 choices = NULL),
-    actionButton(ns("createIndex"), "Create Text Index")
+    actionButton(ns("createIndex"), "Create Text Index"),
+    selectInput(ns("dateField"),
+                "Please select a date field",
+                choices = NULL),
+    checkboxGroupInput(ns("docvars"),
+                       "Select additional variables as docvars for the corpus.",
+                       choices = NULL)
   )
 }
 
 
 preprocess <- function(input, output, session, coll_runtime) {
   
-  tindex <- reactiveVal()
+  rv <- reactiveValues(
+    fields = NULL,
+    tindex = NULL
+  )
   
   # checks for selected collection and updates selectInput accordingly
-  observeEvent(coll_runtime(), ignoreNULL = TRUE, {
+  observe(priority = 2, {
     
-    m <- mongoDB(collection = coll_runtime())
-    tindex(getTextIndex(m, TRUE))
+    m <- mongoDB(collection = req(coll_runtime()))
+    rv$tindex <- getIndex(m, text = TRUE)
+    rv$fields <- colnames(df_runtime())
     
     updateSelectInput(session, "textField",
-                      choices = c("", colnames(df_runtime())),
-                      selected = tindex())
+                      choices = c("", rv$fields),
+                      selected = rv$tindex)
+    
+    updateSelectInput(session, "dateField",
+                      choices = c("", rv$fields[rv$fields != rv$tindex]))
+  })
+  
+  observe({
+    updateCheckboxGroupInput(session, "docvars",
+                             choices = rv$fields[!rv$fields %in% c(rv$tindex, input$dateField)],
+                             inline = TRUE)
   })
   
   # checks if collection already has a text index and updates button accordingly
-  observeEvent(input$textField, ignoreNULL = TRUE, {
+  observeEvent(input$textField, ignoreNULL = TRUE, priority = 1, {
     
-    if (is.null(tindex()))
+    if (is.empty(rv$tindex))
       updateActionButton(session, "createIndex", label = "Create Text Index")
-    else if (input$textField == tindex())
+    else if (input$textField == rv$tindex)
       updateActionButton(session, "createIndex", label = "Text Index updated")
     else
       updateActionButton(session, "createIndex", label = "Update Text Index")
@@ -50,15 +69,15 @@ preprocess <- function(input, output, session, coll_runtime) {
                  text = "Please select the field that contains the text.",
                  type = "warning",
                  showConfirmButton = TRUE)
-    else if (is.null(tindex())) {
+    else if (is.null(rv$tindex)) {
       updateActionButton(session, "createIndex", label = "Text Index created")
       m$index(add = parseIndex(input$textField))
     }
-    else if (input$textField != tindex()) {
-      m$index(remove = getTextIndex(m))
+    else if (input$textField != rv$tindex) {
+      m$index(remove = getTextIndex(m, fields = FALSE, text = TRUE))
       m$index(add = parseIndex(input$textField))
       updateActionButton(session, "createIndex", label = "Text Index updated")
     }
-    tindex(getTextIndex(m, TRUE))
+    tindex(getTextIndex(m, text = TRUE))
   })
 }

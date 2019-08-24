@@ -1,4 +1,5 @@
 library(mongolite)
+library(rapportools)
 
 # makes connecting to MongoDB a lot easier, default db should be changed here
 mongoDB <- function(collection = NULL, db = "mongotest") {
@@ -28,26 +29,27 @@ parseIndex <- function(tlist, name = NULL){
   return(fullQuery)
 }
 
-# finds the text index of a collaction and re-converts it into component fields on demand
+# finds all indexes of a collaction 
+# either returns the text index or all other indexes
+# can return full index names or original field names
 # makes use of the automatic naming of indexes
-getTextIndex <- function(con = NULL, fields = FALSE) {
-  key <- con$index()$textIndexVersion
-  if (is.null(key))
-    return(NULL)
-  else {
-    for (i in 1:length(key)) {
-      if (!is.na(key[i])) {
-        indexName <- con$index()$name[i]
-        if (fields)
-          return (unlist(strsplit(gsub("_text", "", indexName), "_")))
-        else
-          return(indexName)
-        break
-      }
-      else {
-        indexName <- NULL
-        next
-      }
-    }
-  }
+getIndex <- function(con = NULL, fields = TRUE, text = FALSE) {
+  vec <- con$index()$name
+  if (text)
+    end <- "_text"
+  else 
+    end <- "_1"
+  
+  index <- grep(paste0(end, "$"), vec, value = TRUE)
+  if (fields)
+    index <- unlist(strsplit(gsub(end, "", index), "_"))
+
+  if (is.empty(index))
+    return("")
+  else
+    return(index)
 }
+
+m <- mongoDB("Instruments")
+i <- getIndex(m, text = TRUE)
+i

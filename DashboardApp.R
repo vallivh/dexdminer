@@ -15,6 +15,7 @@ source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 #Erzeugung der gemeinsamen Datenbasis
 assign("df_runtime", reactiveVal(), envir = .GlobalEnv)
 assign("coll_runtime", reactiveVal(), envir = .GlobalEnv)
+assign("corp_runtime", reactiveVal(), envir = .GlobalEnv)
 
 
 #UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
