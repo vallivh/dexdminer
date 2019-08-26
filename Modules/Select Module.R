@@ -20,13 +20,13 @@ selectUI <- function(id) {
 select <- function(input, output, session) {
   
   # when a new file is uploaded, it is automatically added and pre-selected
-  observeEvent(global$coll, event.env = .GlobalEnv, {
+  observeEvent(global$coll, event.env = .GlobalEnv, ignoreNULL = TRUE, {
     collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
     updateSelectInput(session, "selectData", choices = collections, selected = global$coll)
   })
 
   # when switching between collections, this resets the button and global$coll
-  observeEvent(input$selectData, {
+  observeEvent(input$selectData, ignoreInit = TRUE, {
     global$coll <- NULL
     updateActionButton(session, "load", label = "Load Data")
   })
@@ -41,14 +41,14 @@ select <- function(input, output, session) {
                  type = "warning",
                  timer = 5000)
     else {
-      m <- mongoDB(collection = input$selectData)
-      dur <- m$info()$stats$count/65000
+      global$m <- mongoDB(collection = input$selectData)
+      dur <- global$m$info()$stats$count/65000
       if (dur > 4)
         showNotification("The data is processing and will be displayed shortly.",
                          type = "warning",
                          duration = dur)
       global$coll <- input$selectData
-      global$data <- m$find('{}')
+      global$data <- global$m$find('{}')
       updateActionButton(session, "load", label = "Loaded to RAM")
     }
   })

@@ -1,8 +1,7 @@
 library(mongolite)
-library(rapportools)
 
 # makes connecting to MongoDB a lot easier, default db should be changed here
-mongoDB <- function(collection = NULL, db = "monogtest") {
+mongoDB <- function(collection = NULL, db = global_db) {
   if (is.null(collection)) {
     mongo(db = db,
           url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")

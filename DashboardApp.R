@@ -1,19 +1,21 @@
 library(mongolite)
-library(jsonlite)
 library(ndjson)
-library(readtext)
+library(rapportools)
 library(shiny)
 library(shinydashboard)
 library(shinyalert)
 library(anytime)
+library(quanteda)
 
 source(paste0(getwd(),"/Modules/Upload Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Select Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Dataprep Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Preprocessing Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 
 #Erzeugung der gemeinsamen Datenbasis
 assign("global", reactiveValues(
+  m = mongoDB(),
   data = NULL,
   coll = NULL,
   corpus = NULL,
@@ -21,9 +23,6 @@ assign("global", reactiveValues(
   dfm = NULL
 ), envir = .GlobalEnv)
 assign("global_db", "mongotest", envir = .GlobalEnv)
-assign("df_runtime", reactiveVal(), envir = .GlobalEnv)
-assign("coll_runtime", reactiveVal(), envir = .GlobalEnv)
-assign("corp_runtime", reactiveVal(), envir = .GlobalEnv)
 
 
 #UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
@@ -56,11 +55,16 @@ ui <- dashboardPage(
                  box(title = "...or select an existing one.",
                      selectUI("select"),
                      width = 12)
-          ),
+                ),
           column(6,
+                 box(title = "Data Preparation",
+                     dataprepUI("data"),
+                     collapsible = TRUE,
+                     width = 12),
                  box(title = "Preprocessing",
                      preprocessUI("prep"),
-                     width = 12))
+                     width = 12)
+                 )
         ),
         fluidRow(
           tags$h2("Explore the data", style = "text-align:center"),
@@ -74,8 +78,9 @@ ui <- dashboardPage(
 server <- function(input, output, session){
   callModule(upload, "upload")
   callModule(select, "select")
-  callModule(preprocess, "prep")
+  callModule(dataprep, "data")
   observeEvent(global$data, {callModule(displayTable, "table", global$data)})
+  callModule(preprocess, "prep")
   session$onSessionEnded(stopApp)
 }
 

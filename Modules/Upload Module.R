@@ -52,10 +52,8 @@ upload <- function(input, output, session) {
     }
     #once all is well, file data is streamed in and saved to MongoDB
     else {
-      coll <- mongo(collection = input$coll_name,
-                    db = "mongotest",
-                    url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
-      coll$insert(global$data)
+      global$m <- mongoDB(input$coll_name)
+      global$m$insert(global$data)
       global$coll <- input$coll_name
       updateActionButton(session, "save", label = "Saved to MongoDB")
     }

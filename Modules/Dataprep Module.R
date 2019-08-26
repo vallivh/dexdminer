@@ -1,7 +1,7 @@
 source(paste0(getwd(), "/Modules/MongoDB parser.R"), local = TRUE)
 
 
-preprocessUI <- function(id) {
+dataprepUI <- function(id) {
   ns <- NS(id)
   tagList(
     selectInput(ns("textField"), 
@@ -19,22 +19,20 @@ preprocessUI <- function(id) {
 }
 
 
-preprocess <- function(input, output, session) {
+dataprep <- function(input, output, session) {
   
   rv <- reactiveValues(
     fields = NULL,
     tindex = NULL,
-    docvars = NULL,
-    m = NULL
+    docvars = NULL
   )
   
   # checks for selected collection, requests tindex and gets column names
   # updates tindex and date field
   observe(priority = 2, {
     
-    rv$m <- mongoDB(collection = req(global$coll))
-    rv$tindex <- getIndex(rv$m, text = TRUE)
-    rv$docvars <- getIndex(rv$m)
+    rv$tindex <- getIndex(global$m, text = TRUE)
+    rv$docvars <- getIndex(global$m)
     rv$fields <- colnames(isolate(global$data))
     
     updateSelectInput(session, "textField",
@@ -81,24 +79,29 @@ preprocess <- function(input, output, session) {
       if (is.empty(rv$tindex))
         updateActionButton(session, "createIndex", label = "Text Index created")
       else if (input$textField != rv$tindex) {
-        rv$m$index(remove = getTextIndex(rv$m, fields = FALSE, text = TRUE))
+        global$m$index(remove = getTextIndex(global$m, fields = FALSE, text = TRUE))
         updateActionButton(session, "createIndex", label = "Text Index updated")
       }
       # create text index and update reactive value
-      rv$m$index(add = parseIndex(input$textField, text = TRUE))
-      rv$tindex <- getIndex(rv$m, text = TRUE)
+      global$m$index(add = parseIndex(input$textField, text = TRUE))
+      rv$tindex <- getIndex(global$m, text = TRUE)
     }
   })
   
+  # on clicking the Create Button, converts the date field to POSIXct
+  # creates indexes for the date and all selected docvars (saving the docvars and optimizing the DB)
   observeEvent(input$createDocvars, {
     
-    df <- rv$m$find('{}', fields = parseFields(c("_id", req(input$dateField))), limit = 500)
+    # this still needs validation for further datasets and formats and missing date fields
+    # loads an _id/date data frame from Mongo, converts the data into a third column and updates all documents
+    df <- global$m$find('{}', fields = parseFields(c("_id", req(input$dateField))))
     df$date <- anydate(df[, 2])
-    apply(df, 1, function(x) {rv$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'), 
+    apply(df, 1, function(x) {global$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'), 
                                           update = paste0('{"$set": {"date": "', x[3], '"}}'))})
 
-    apply(array(c("date", input$docvars)), 1, function(x) {rv$m$index(add = parseIndex(x[1]))})
-    rv$docvars <- getIndex(rv$m)
+    apply(array(c("date", input$docvars)), 1, function(x) {global$m$index(add = parseIndex(x[1]))})
+    rv$docvars <- getIndex(global$m)
+    global$data <- global$m$find('{}')
     updateActionButton(session, "createDocvars", label = "Docvars created")
   })
 }
