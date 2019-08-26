@@ -9,7 +9,7 @@ library(anytime)
 
 source(paste0(getwd(),"/Modules/Upload Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Select Module.R"), local = TRUE)
-source(paste0(getwd(),"/Modules/Preprocess Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Dataprep Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 
 #Erzeugung der gemeinsamen Datenbasis
