@@ -24,6 +24,7 @@ preprocess <- function(input, output, session, coll_runtime) {
   rv <- reactiveValues(
     fields = NULL,
     tindex = NULL,
+    docvars = NULL,
     m = NULL
   )
   
@@ -33,21 +34,25 @@ preprocess <- function(input, output, session, coll_runtime) {
     
     rv$m <- mongoDB(collection = req(coll_runtime()))
     rv$tindex <- getIndex(rv$m, text = TRUE)
-    rv$fields <- colnames(df_runtime())
+    rv$docvars <- getIndex(rv$m)
+    rv$fields <- colnames(isolate(df_runtime()))
     
     updateSelectInput(session, "textField",
                       choices = c("", rv$fields),
                       selected = rv$tindex)
     
     updateSelectInput(session, "dateField",
-                      choices = c("", rv$fields[rv$fields != rv$tindex]))
+                      choices = c("", rv$fields[rv$fields != rv$tindex]),
+                      selected = "date")
   })
   
   # checks tindex and date field and updates the docvar choices accordingly
   # seperate observer ensures correct running order
   observe({
+    
     updateCheckboxGroupInput(session, "docvars",
                              choices = rv$fields[!rv$fields %in% c(rv$tindex, input$dateField)],
+                             selected = rv$docvars,
                              inline = TRUE)
   })
   
@@ -80,16 +85,20 @@ preprocess <- function(input, output, session, coll_runtime) {
         updateActionButton(session, "createIndex", label = "Text Index updated")
       }
       # create text index and update reactive value
-      rv$m$index(add = parseIndex(input$textField))
-      rv$tindex <- getTextIndex(rv$m, text = TRUE)
+      rv$m$index(add = parseIndex(input$textField, text = TRUE))
+      rv$tindex <- getIndex(rv$m, text = TRUE)
     }
   })
   
   observeEvent(input$createDocvars, {
+    
     df <- rv$m$find('{}', fields = parseFields(c("_id", req(input$dateField))), limit = 500)
     df$date <- anydate(df[, 2])
     apply(df, 1, function(x) {rv$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'), 
                                           update = paste0('{"$set": {"date": "', x[3], '"}}'))})
-    apply(c("date", input$docvars), 1, function(x) {rv$m$index(add = parseIndex(x))})
+
+    apply(array(c("date", input$docvars)), 1, function(x) {rv$m$index(add = parseIndex(x[1]))})
+    rv$docvars <- getIndex(rv$m)
+    updateActionButton(session, "createDocvars", label = "Docvars created")
   })
 }

@@ -46,7 +46,7 @@ getIndex <- function(con = NULL, fields = TRUE, text = FALSE) {
   
   index <- grep(paste0(end, "$"), indexes, value = TRUE)
   if (fields)
-    index <- unlist(strsplit(gsub(end, "", index), "_"))
+    index <- sub(end, "", index)
 
   if (is.empty(index))
     return(NULL)
