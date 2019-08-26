@@ -15,7 +15,7 @@ uploadUI <- function(id){
 }
 
 
-upload <- function(input, output, session, coll_runtime) {
+upload <- function(input, output, session) {
   
   # increases the shiny upload limit
   options(shiny.maxRequestSize = 500*1024^2)
@@ -33,8 +33,7 @@ upload <- function(input, output, session, coll_runtime) {
                        type = "warning", 
                        duration = dur)
     
-    df <- stream_in(input$file$datapath)
-    df_runtime(df)
+    global$data <- stream_in(input$file$datapath)
     },
     ignoreNULL = TRUE)
   
@@ -56,9 +55,9 @@ upload <- function(input, output, session, coll_runtime) {
       coll <- mongo(collection = input$coll_name,
                     db = "mongotest",
                     url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
-      coll$insert(df_runtime())
+      coll$insert(global$data)
+      global$coll <- input$coll_name
       updateActionButton(session, "save", label = "Saved to MongoDB")
-      coll_runtime(input$coll_name)
     }
   })
 }

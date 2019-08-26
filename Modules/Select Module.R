@@ -17,17 +17,17 @@ selectUI <- function(id) {
 }
 
 
-select <- function(input, output, session, coll_runtime) {
+select <- function(input, output, session) {
   
   # when a new file is uploaded, it is automatically added and pre-selected
-  observeEvent(coll_runtime(), {
+  observeEvent(global$coll, event.env = .GlobalEnv, {
     collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
-    updateSelectInput(session, "selectData", choices = collections, selected = coll_runtime())
+    updateSelectInput(session, "selectData", choices = collections, selected = global$coll)
   })
 
-  # when switching between collections, this resets the button and coll_runtime
+  # when switching between collections, this resets the button and global$coll
   observeEvent(input$selectData, {
-    coll_runtime(NULL)
+    global$coll <- NULL
     updateActionButton(session, "load", label = "Load Data")
   })
   
@@ -47,8 +47,8 @@ select <- function(input, output, session, coll_runtime) {
         showNotification("The data is processing and will be displayed shortly.",
                          type = "warning",
                          duration = dur)
-      coll_runtime(input$selectData)
-      df_runtime(m$find('{}'))
+      global$coll <- input$selectData
+      global$data <- m$find('{}')
       updateActionButton(session, "load", label = "Loaded to RAM")
     }
   })

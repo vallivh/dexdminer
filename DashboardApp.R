@@ -13,6 +13,14 @@ source(paste0(getwd(),"/Modules/Dataprep Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 
 #Erzeugung der gemeinsamen Datenbasis
+assign("global", reactiveValues(
+  data = NULL,
+  coll = NULL,
+  corpus = NULL,
+  tokens = NULL,
+  dfm = NULL
+), envir = .GlobalEnv)
+assign("global_db", "mongotest", envir = .GlobalEnv)
 assign("df_runtime", reactiveVal(), envir = .GlobalEnv)
 assign("coll_runtime", reactiveVal(), envir = .GlobalEnv)
 assign("corp_runtime", reactiveVal(), envir = .GlobalEnv)
@@ -64,10 +72,10 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session){
-  callModule(upload, "upload", coll_runtime())
-  callModule(select, "select", coll_runtime())
-  callModule(preprocess, "prep", coll_runtime())
-  observeEvent(df_runtime(), {callModule(displayTable, "table", df_runtime())})
+  callModule(upload, "upload")
+  callModule(select, "select")
+  callModule(preprocess, "prep")
+  observeEvent(global$data, {callModule(displayTable, "table", global$data)})
   session$onSessionEnded(stopApp)
 }
 

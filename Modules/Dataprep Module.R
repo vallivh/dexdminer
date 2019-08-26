@@ -19,7 +19,7 @@ preprocessUI <- function(id) {
 }
 
 
-preprocess <- function(input, output, session, coll_runtime) {
+preprocess <- function(input, output, session) {
   
   rv <- reactiveValues(
     fields = NULL,
@@ -32,10 +32,10 @@ preprocess <- function(input, output, session, coll_runtime) {
   # updates tindex and date field
   observe(priority = 2, {
     
-    rv$m <- mongoDB(collection = req(coll_runtime()))
+    rv$m <- mongoDB(collection = req(global$coll))
     rv$tindex <- getIndex(rv$m, text = TRUE)
     rv$docvars <- getIndex(rv$m)
-    rv$fields <- colnames(isolate(df_runtime()))
+    rv$fields <- colnames(isolate(global$data))
     
     updateSelectInput(session, "textField",
                       choices = c("", rv$fields),
@@ -58,7 +58,7 @@ preprocess <- function(input, output, session, coll_runtime) {
   
   # checks if collection already has a text index and updates button accordingly
   observeEvent({input$textField
-                coll_runtime()}, ignoreNULL = TRUE, priority = 1, {
+                global$coll}, ignoreNULL = TRUE, priority = 1, {
     
     if (is.empty(rv$tindex))
       updateActionButton(session, "createIndex", label = "Create Text Index")
