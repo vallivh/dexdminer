@@ -48,7 +48,7 @@ select <- function(input, output, session) {
                          type = "warning",
                          duration = dur)
       global$coll <- input$selectData
-      global$data <- global$m$find('{}')
+      global$data <- global$m$find('{}', fields = '{}')
       updateActionButton(session, "load", label = "Loaded to RAM")
     }
   })

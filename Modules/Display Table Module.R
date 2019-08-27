@@ -7,6 +7,6 @@ displayTableUI <- function(id) {
 
 displayTable <- function(input, output, session, data) {
   output$table <- renderDataTable({
-    data
+    data[names(data) != "_id"]
   })
 }

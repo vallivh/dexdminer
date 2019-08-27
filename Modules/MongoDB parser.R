@@ -47,7 +47,7 @@ getIndex <- function(con = NULL, fields = TRUE, text = FALSE) {
   if (fields)
     index <- sub(end, "", index)
 
-  if (is.empty(index))
+  if (length(index) == 0)
     return(NULL)
   else
     return(index)

@@ -94,14 +94,20 @@ dataprep <- function(input, output, session) {
     
     # this still needs validation for further datasets and formats and missing date fields
     # loads an _id/date data frame from Mongo, converts the data into a third column and updates all documents
-    df <- global$m$find('{}', fields = parseFields(c("_id", req(input$dateField))))
-    df$date <- anydate(df[, 2])
-    apply(df, 1, function(x) {global$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'), 
-                                          update = paste0('{"$set": {"date": "', x[3], '"}}'))})
-
-    apply(array(c("date", input$docvars)), 1, function(x) {global$m$index(add = parseIndex(x[1]))})
-    rv$docvars <- getIndex(global$m)
-    global$data <- global$m$find('{}')
+    if (req(input$dateField) != "date") {
+      df <- global$m$find('{}', fields = parseFields(c("_id", input$dateField)))
+      df$date <- anydate(df[, 2])
+      apply(df, 1, function(x) {global$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'), 
+                                                update = paste0('{"$set": {"date": "', x[3], '"}}'))})
+    }
+    
+    docvars <- c("date", input$docvars)
+    if (!all.equal(docvars, getIndex(global$m))) {
+      apply(array(docvars), 1, function(x) {global$m$index(add = parseIndex(x[1]))})
+      rv$docvars <- getIndex(global$m)
+      global$data <- global$m$find('{}', fields = '{}')
+    }  
+    
     updateActionButton(session, "createDocvars", label = "Docvars created")
   })
 }
