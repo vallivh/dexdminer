@@ -93,7 +93,7 @@ dataprep <- function(input, output, session) {
   observeEvent(input$createDocvars, {
     
     # this still needs validation for further datasets and formats and missing date fields
-    # loads an _id/date data frame from Mongo, converts the data into a third column and updates all documents
+    # loads an _id/date data frame from Mongo, converts the date into a third column and updates all documents
     if (req(input$dateField) != "date") {
       df <- global$m$find('{}', fields = parseFields(c("_id", input$dateField)))
       df$date <- anydate(df[, 2])
@@ -101,9 +101,9 @@ dataprep <- function(input, output, session) {
                                                 update = paste0('{"$set": {"date": "', x[3], '"}}'))})
     }
     
-    docvars <- c("date", input$docvars)
-    if (!all.equal(docvars, getIndex(global$m))) {
-      apply(array(docvars), 1, function(x) {global$m$index(add = parseIndex(x[1]))})
+    newDocvars <- setdiff(c("date", input$docvars), getIndex(global$m))
+    if (length(newDocvars) > 0) {
+      apply(array(newDocvars), 1, function(x) {global$m$index(add = parseIndex(x[1]))})
       rv$docvars <- getIndex(global$m)
       global$data <- global$m$find('{}', fields = '{}')
     }  

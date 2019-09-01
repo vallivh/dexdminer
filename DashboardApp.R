@@ -12,6 +12,7 @@ source(paste0(getwd(),"/Modules/Select Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Dataprep Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Preprocessing Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Sentiment Module.R"), local = TRUE)
 
 #Erzeugung der gemeinsamen Datenbasis
 assign("global", reactiveValues(
@@ -70,7 +71,10 @@ ui <- dashboardPage(
           tags$h2("Explore the data", style = "text-align:center"),
           displayTableUI("table")
         )
-      )
+      ),
+      tabItem(tabName = "sentiment",
+              box(title = "Sentiment Analysis",
+                  sentimentUI("sentiment")))
     )
   )
 )
@@ -81,6 +85,7 @@ server <- function(input, output, session){
   callModule(dataprep, "data")
   observeEvent(global$data, {callModule(displayTable, "table", global$data)})
   callModule(preprocess, "prep")
+  callModule(sentiment, "sentiment")
   session$onSessionEnded(stopApp)
 }
 
