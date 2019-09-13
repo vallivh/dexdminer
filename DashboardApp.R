@@ -37,6 +37,11 @@ ui <- dashboardPage(
         icon = icon("database")
       ),
       menuItem(
+        "Preprocessing",
+        tabName = "preprocessing",
+        icon = icon("edit")
+      ),
+      menuItem(
         "Sentiment Analysis",
         tabName = "sentiment",
         icon = icon("smile")
@@ -47,7 +52,7 @@ ui <- dashboardPage(
     tabItems(
       tabItem(tabName = "data_selection",
         fluidRow(
-          column(6,
+          column(4,
                  box(title = "Upload a dataset...",
                      uploadUI("upload"),
                      collapsible = TRUE,
@@ -57,24 +62,29 @@ ui <- dashboardPage(
                      selectUI("select"),
                      width = 12)
                 ),
-          column(6,
+          column(4,
                  box(title = "Data Preparation",
                      dataprepUI("data"),
                      collapsible = TRUE,
-                     width = 12),
-                 box(title = "Preprocessing",
-                     preprocessUI("prep"),
                      width = 12)
-                 )
+                 ),
+          column(4,
+                 valueBoxOutput("numdocs", width = 12)
+          )
         ),
         fluidRow(
           tags$h2("Explore the data", style = "text-align:center"),
           displayTableUI("table")
         )
       ),
+      tabItem(tabName = "preprocessing",
+              box(title = "Preprocessing",
+                  preprocessUI("prep"))
+      ),
       tabItem(tabName = "sentiment",
               box(title = "Sentiment Analysis",
-                  sentimentUI("sentiment")))
+                  sentimentUI("sentiment"))
+      )
     )
   )
 )
@@ -86,6 +96,12 @@ server <- function(input, output, session){
   observeEvent(global$data, {callModule(displayTable, "table", global$data)})
   callModule(preprocess, "prep")
   callModule(sentiment, "sentiment")
+  
+  output$numdocs <- renderValueBox({
+    valueBox(value = format(global$m$count(), big.mark = ".", decimal.mark = ","), 
+             subtitle = "DOCUMENTS",
+             icon = icon("list-ol"))
+  })
   session$onSessionEnded(stopApp)
 }
 

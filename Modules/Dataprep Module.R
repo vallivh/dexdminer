@@ -14,7 +14,7 @@ dataprepUI <- function(id) {
     checkboxGroupInput(ns("docvars"),
                        "Select additional variables as docvars for the corpus.",
                        choices = NULL),
-    actionButton(ns("createDocvars"), "Create Docvars")
+    actionButton(ns("createCorpus"), "Create Corpus")
   )
 }
 
@@ -28,7 +28,7 @@ dataprep <- function(input, output, session) {
   )
   
   # checks for selected collection, requests tindex and gets column names
-  # updates tindex and date field
+  # updates text and date field
   observe(priority = 2, {
     
     rv$tindex <- getIndex(global$m, text = TRUE)
@@ -47,9 +47,8 @@ dataprep <- function(input, output, session) {
   # checks tindex and date field and updates the docvar choices accordingly
   # seperate observer ensures correct running order
   observe({
-    
     updateCheckboxGroupInput(session, "docvars",
-                             choices = rv$fields[!rv$fields %in% c(rv$tindex, input$dateField)],
+                             choices = rv$fields[!rv$fields %in% c("_id", rv$tindex, input$dateField)],
                              selected = rv$docvars,
                              inline = TRUE)
   })
@@ -64,6 +63,16 @@ dataprep <- function(input, output, session) {
       updateActionButton(session, "createIndex", label = "Text Index up to date")
     else
       updateActionButton(session, "createIndex", label = "Update Text Index")
+  })
+  
+  # resets the Corpus and Button on changes of collection or variables
+  observeEvent({input$textField
+                input$dateField
+                input$docvars
+                global$coll}, ignoreNULL = TRUE, priority = 1, {
+                  
+    global$corpus <- NULL
+    updateActionButton(session, "createCorpus", label = "Create Corpus")                  
   })
   
   # on clicking the Create Button, either creates a new text index or drops and replaces the old one
@@ -88,26 +97,36 @@ dataprep <- function(input, output, session) {
     }
   })
   
-  # on clicking the Create Button, converts the date field to POSIXct
-  # creates indexes for the date and all selected docvars (saving the docvars and optimizing the DB)
-  observeEvent(input$createDocvars, {
+  # converts the date field, indexes the docvars and creates a corpus
+  observeEvent(input$createCorpus, {
     
+    # adds a new "date" field in a unified POSIXct format
+    # loads _id and input date field from Mongo, converts the date and updates all documents
     # this still needs validation for further datasets and formats and missing date fields
-    # loads an _id/date data frame from Mongo, converts the date into a third column and updates all documents
     if (req(input$dateField) != "date") {
       df <- global$m$find('{}', fields = parseFields(c("_id", input$dateField)))
-      df$date <- anydate(df[, 2])
-      apply(df, 1, function(x) {global$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'), 
-                                                update = paste0('{"$set": {"date": "', x[3], '"}}'))})
+      df$date <- paste0(as.integer(anytime(df[, 2])), "000")
+      
+      apply(df, 1, function(x) {global$m$update(query = paste0('{"_id":{"$oid":"', x[1], '"}}'),
+                                                update = paste0('{"$set": {"date": {"$date": {"$numberLong": "', x[3], '"}}}}'))})
+      
+      global$data <- global$m$find('{}', fields = '{}')
     }
     
-    newDocvars <- setdiff(c("date", input$docvars), getIndex(global$m))
-    if (length(newDocvars) > 0) {
+    # removes or adds only docvars/indexes that have changed
+    newDocvars <- setdiff(c("date", input$docvars), rv$docvars)
+    oldDocvars <- setdiff(rv$docvars, c("date", input$docvars))
+    if (length(oldDocvars) > 0)
+      apply(array(oldDocvars), 1, function(x) {global$m$index(remove = paste0(x[1], "_1"))})
+    if (length(newDocvars) > 0)
       apply(array(newDocvars), 1, function(x) {global$m$index(add = parseIndex(x[1]))})
-      rv$docvars <- getIndex(global$m)
-      global$data <- global$m$find('{}', fields = '{}')
-    }  
     
-    updateActionButton(session, "createDocvars", label = "Docvars created")
+    rv$docvars <- getIndex(global$m)
+    
+    # creates the corpus object and updates the button
+    global$corpus <- corpus(global$data[c("_id", input$textField, rv$docvars)], 
+                            docid_field = "_id",
+                            text_field = input$textField)
+    updateActionButton(session, "createCorpus", label = "Corpus created")
   })
 }
