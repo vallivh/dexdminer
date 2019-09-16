@@ -14,8 +14,14 @@ preprocessUI <- function(id) {
                                                "symbols",
                                                "urls",
                                                "stopwords")),
+           uiOutput(ns("language")),
            actionButton(ns("createTokens"), "Create Tokens")),
-    column(6, 
+    column(6,
+           checkboxGroupInput(ns("dfmOpt"), "DFM Options", 
+                              choiceNames = c("All Lowercase", 
+                                              "Stemming"),
+                              choiceValues = c("tolower",
+                                               "stem")),
            actionButton(ns("createDFM"), "Create DFM"))
   )
 }
@@ -29,8 +35,17 @@ preprocess <- function(input, output, session) {
     updateActionButton(session, "createDFM", label = "Create DFM")
   })
   
+  observeEvent(input$tokOpt, {
+    if ("stopwords" %in% input$tokOpt)
+      output$language <- renderUI({
+        selectInput(ns("language"), 
+                    "Please select the language", 
+                    choices = c(Englisch = "en", Deutsch = "de"))
+      })
+  })
+  
   observeEvent(input$createTokens, {
-    print("nums" %in% input$tokOpt)
+    
     global$tokens <- tokens(req(global$corpus), 
                             what = "word",
                             remove_numbers = ("nums" %in% input$tokOpt),
@@ -40,13 +55,17 @@ preprocess <- function(input, output, session) {
                             include_docvars = TRUE)
     
     if ("stopwords" %in% input$tokOpt)
-      global$tokens <- tokens_remove(global$tokens, pattern = stopwords("en"))
+      global$tokens <- tokens_remove(global$tokens, pattern = stopwords(input$language))
     
     updateActionButton(session, "createTokens", label = "Tokens created")
   })
   
   observeEvent(input$createDFM, {
-    global$dfm <- dfm(global$tokens, tolower = TRUE)
+    
+    global$dfm <- dfm(req(global$tokens), 
+                      tolower = ("tolower" %in% input$dfmOpt),
+                      stem = ("stem" %in% input$dfmOpt))
+    
     updateActionButton(session, "createDFM", label = "DFM created")
   })
 }

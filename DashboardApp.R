@@ -13,6 +13,7 @@ source(paste0(getwd(),"/Modules/Dataprep Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Preprocessing Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
 source(paste0(getwd(),"/Modules/Sentiment Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Info Module.R"), local = TRUE)
 
 #Erzeugung der gemeinsamen Datenbasis
 assign("global", reactiveValues(
@@ -69,7 +70,7 @@ ui <- dashboardPage(
                      width = 12)
                  ),
           column(4,
-                 valueBoxOutput("numdocs", width = 12)
+                 infoUI("data_info")
           )
         ),
         fluidRow(
@@ -78,8 +79,12 @@ ui <- dashboardPage(
         )
       ),
       tabItem(tabName = "preprocessing",
-              box(title = "Preprocessing",
-                  preprocessUI("prep"))
+              column(6,
+                     box(title = "Preprocessing",
+                         preprocessUI("prep"),
+                         width = 12)),
+              column(4, offset = 2,
+                     infoUI("prep_info"))
       ),
       tabItem(tabName = "sentiment",
               box(title = "Sentiment Analysis",
@@ -96,12 +101,9 @@ server <- function(input, output, session){
   observeEvent(global$data, {callModule(displayTable, "table", global$data)})
   callModule(preprocess, "prep")
   callModule(sentiment, "sentiment")
+  callModule(info, "data_info")
+  callModule(info, "prep_info")
   
-  output$numdocs <- renderValueBox({
-    valueBox(value = format(global$m$count(), big.mark = ".", decimal.mark = ","), 
-             subtitle = "DOCUMENTS",
-             icon = icon("list-ol"))
-  })
   session$onSessionEnded(stopApp)
 }
 
