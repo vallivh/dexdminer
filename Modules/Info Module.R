@@ -2,6 +2,7 @@
 infoUI <- function(id) {
   ns <- NS(id)
   tagList(
+    infoBoxOutput(ns("objects"), width = 12),
     infoBoxOutput(ns("numdocs"), width = 12),
     infoBoxOutput(ns("size"), width = 12),
     infoBoxOutput(ns("docvars"), width = 12)
@@ -29,7 +30,7 @@ info <- function(input, output, session) {
   })
   
   output$docvars <- renderValueBox({
-    if (is.empty(getIndex(global$m)))
+    if (is.null(getIndex(global$m)))
       num = 0
     else
       num = length(getIndex(global$m))
@@ -37,5 +38,27 @@ info <- function(input, output, session) {
     valueBox(value = format(num, big.mark = ".", decimal.mark = ","), 
              subtitle = "DOCVARS",
              icon = icon("tags"))
+  })
+  
+  output$objects <- renderValueBox({
+    if (is.null(global$coll))
+      valueBox(value = "No Collection", 
+               subtitle = "SELECTED",
+               icon = icon("times"))
+    else if (is.null(global$corpus))
+      valueBox(value = global$coll, 
+               subtitle = "SELECTED",
+               icon = icon("check"))
+    else {
+      val <- "Corpus"
+      if (!is.null(global$dfm))
+        val <- "Corpus, Tokens & DFM"
+      else if (!is.null(global$tokens))
+        val <- "Corpus & Tokens"
+      
+      valueBox(value = val, 
+               subtitle = "CREATED",
+               icon = icon("check"))
+    }
   })
 }

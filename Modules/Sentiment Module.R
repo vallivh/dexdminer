@@ -1,9 +1,11 @@
+library(jsonlite)
 
 sentimentUI <- function(id) {
   ns <- NS(id)
   tagList(
     actionButton(ns("showSenti"), "Show Sentiment", icon = icon("smile")),
-    actionButton(ns("saveSenti"), "Save Results")
+    actionButton(ns("saveSenti"), "Save Results"),
+    plotOutput(ns("sentiPlot"))
   )
 }
 
@@ -15,13 +17,26 @@ sentiment <- function(input, output, session) {
   })
   
   observeEvent(input$showSenti, {
-    print(global$m$aggregate('[{"$group":{
-                                  "_id": {"year": {"$year": "$date"}, "month": {"$month": "$date"}}, 
+    df <- global$m$aggregate('[{"$group":{
+                                  "_id": {"year": {"$year": "$date"}, "month": {"$month": "$date"}},
                                   "positive": {"$sum": "$positive"}, 
                                   "negative": {"$sum": "$negative"}
                                   }
                                 },
-                                {"$sort": {"_id": 1}}]'))
+                                {"$sort": {"_id": 1}}]')
+    df <- flatten(df)
+    print(str(df))
+    colnames(df) <- lapply(colnames(df), function(x){sub("_id.", "", x)})
+    print(colnames(df))
+    
+    output$sentiPlot <- renderPlot({
+      plot_ly(df, x = ~year, y = ~positive, type = "bar", name = "Positive Words") %>% 
+        add_trace(y = ~negative, name = "Negative Words") %>% 
+        layout(title = "Count of pos/neg words",
+               yaxis = list(title = "Count"), 
+               xaxis = list(title = "Time"),
+               barmode = "group")
+    })
   })
   
   observeEvent(input$saveSenti, {

@@ -13,7 +13,11 @@ preprocessUI <- function(id) {
                                                "punct",
                                                "symbols",
                                                "urls",
-                                               "stopwords")),
+                                               "stopwords"),
+                              selected = c("nums",
+                                           "punct",
+                                           "symbols",
+                                           "stopwords")),
            uiOutput(ns("language")),
            actionButton(ns("createTokens"), "Create Tokens")),
     column(6,
@@ -40,7 +44,7 @@ preprocess <- function(input, output, session) {
       output$language <- renderUI({
         selectInput(ns("language"), 
                     "Please select the language", 
-                    choices = c(Englisch = "en", Deutsch = "de"))
+                    choices = c(English = "en", German = "de"))
       })
   })
   
