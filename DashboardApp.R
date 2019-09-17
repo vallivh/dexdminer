@@ -6,6 +6,7 @@ library(shinydashboard)
 library(shinyalert)
 library(anytime)
 library(quanteda)
+library(spacyr)
 library(plotly)
 
 source(paste0(getwd(),"/Modules/Upload Module.R"))

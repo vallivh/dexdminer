@@ -47,14 +47,18 @@ preprocess <- function(input, output, session) {
   
   # Beim Klick auf den Create Button wird ein Token Object entsprechend der ausgewählten Optionen erzeugt
   observeEvent(input$createTokens, {
-    global$tokens <- tokens(req(global$corpus), 
+    # spacy_initialize()
+    # global$tokens <- spacy_parse(global$corpus) %>% as.tokens()
+    # spacy_finalize()
+    
+    global$tokens <- tokens(req(global$corpus),
                             what = "word",
                             remove_numbers = ("nums" %in% input$tokOpt),
                             remove_punct = ("punct" %in% input$tokOpt),
                             remove_symbols = ("symbols" %in% input$tokOpt),
                             remove_urls = ("urls" %in% input$tokOpt),
                             include_docvars = TRUE)
-    
+
     if ("stopwords" %in% input$tokOpt)
       global$tokens <- tokens_remove(global$tokens, pattern = stopwords(input$language))
     
