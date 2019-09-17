@@ -2,6 +2,7 @@
 preprocessUI <- function(id) {
   ns <- NS(id)
   tagList(
+    # Token Object Optionen und Button
     column(6, 
            checkboxGroupInput(ns("tokOpt"), "Token Options", 
                               choiceNames = c("Remove Numbers", 
@@ -18,8 +19,11 @@ preprocessUI <- function(id) {
                                            "punct",
                                            "symbols",
                                            "stopwords")),
-           uiOutput(ns("language")),
+           selectInput(ns("language"), 
+                       "Please select the language", 
+                       choices = c(English = "en", German = "de")),
            actionButton(ns("createTokens"), "Create Tokens")),
+    # DFM Optionen und Button
     column(6,
            checkboxGroupInput(ns("dfmOpt"), "DFM Options", 
                               choiceNames = c("All Lowercase", 
@@ -35,22 +39,14 @@ preprocess <- function(input, output, session) {
   
   ns <- session$ns
   
+  # setzt die Buttons beim Auswählen einer anderen Collection zurück
   observeEvent(global$coll, event.env = .GlobalEnv, {
     updateActionButton(session, "createTokens", label = "Create Tokens")
     updateActionButton(session, "createDFM", label = "Create DFM")
   })
   
-  observeEvent(input$tokOpt, {
-    if ("stopwords" %in% input$tokOpt)
-      output$language <- renderUI({
-        selectInput(ns("language"), 
-                    "Please select the language", 
-                    choices = c(English = "en", German = "de"))
-      })
-  })
-  
+  # Beim Klick auf den Create Button wird ein Token Object entsprechend der ausgewählten Optionen erzeugt
   observeEvent(input$createTokens, {
-    
     global$tokens <- tokens(req(global$corpus), 
                             what = "word",
                             remove_numbers = ("nums" %in% input$tokOpt),
@@ -65,6 +61,7 @@ preprocess <- function(input, output, session) {
     updateActionButton(session, "createTokens", label = "Tokens created")
   })
   
+  # Beim Klick auf den Create Button wird eine DFM aus dem Token Object erzeugt entspr. der Optionen
   observeEvent(input$createDFM, {
     
     global$dfm <- dfm(req(global$tokens), 

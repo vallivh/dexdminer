@@ -12,12 +12,14 @@ infoUI <- function(id) {
 
 info <- function(input, output, session) {
   
+  # zeigt die Anzahl der Dokumente (Zeilen) in der ausgewählten Collection an
   output$numdocs <- renderValueBox({
     valueBox(value = format(global$m$count(), big.mark = ".", decimal.mark = ","), 
              subtitle = "DOCUMENTS",
              icon = icon("list-ol"))
   })
   
+  # zeigt die Größe (in MB) der ausgewählten Collection an
   output$size <- renderValueBox({
     if (is.null(global$m$info()$stats$size))
       size = 0
@@ -29,6 +31,8 @@ info <- function(input, output, session) {
              icon = icon("hdd"))
   })
   
+  # zeigt die Anzahl der Docvars im aktuellen Corpus an
+  # funktioniert noch nicht beim initiallen Erzeugen der Docvars
   output$docvars <- renderValueBox({
     if (is.null(getIndex(global$m)))
       num = 0
@@ -40,6 +44,8 @@ info <- function(input, output, session) {
              icon = icon("tags"))
   })
   
+  # zeigt den Namen der ausgewählten Collection an
+  # bzw. informiert über die im RAM verfügbaren TM Objekte
   output$objects <- renderValueBox({
     if (is.null(global$coll))
       valueBox(value = "No Collection", 
