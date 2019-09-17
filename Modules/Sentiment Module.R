@@ -5,7 +5,7 @@ sentimentUI <- function(id) {
   tagList(
     actionButton(ns("showSenti"), "Show Sentiment", icon = icon("smile")),
     actionButton(ns("saveSenti"), "Save Results"),
-    plotOutput(ns("sentiPlot"))
+    plotlyOutput(ns("sentiPlot"))
   )
 }
 
@@ -27,9 +27,8 @@ sentiment <- function(input, output, session) {
     df <- flatten(df)
     print(str(df))
     colnames(df) <- lapply(colnames(df), function(x){sub("_id.", "", x)})
-    print(colnames(df))
     
-    output$sentiPlot <- renderPlot({
+    output$sentiPlot <- renderPlotly({
       plot_ly(df, x = ~year, y = ~positive, type = "bar", name = "Positive Words") %>% 
         add_trace(y = ~negative, name = "Negative Words") %>% 
         layout(title = "Count of pos/neg words",

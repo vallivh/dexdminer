@@ -8,13 +8,13 @@ library(anytime)
 library(quanteda)
 library(plotly)
 
-source(paste0(getwd(),"/Modules/Upload Module.R"), local = TRUE)
-source(paste0(getwd(),"/Modules/Select Module.R"), local = TRUE)
-source(paste0(getwd(),"/Modules/Dataprep Module.R"), local = TRUE)
-source(paste0(getwd(),"/Modules/Preprocessing Module.R"), local = TRUE)
-source(paste0(getwd(),"/Modules/Display Table Module.R"), local = TRUE)
-source(paste0(getwd(),"/Modules/Sentiment Module.R"), local = TRUE)
-source(paste0(getwd(),"/Modules/Info Module.R"), local = TRUE)
+source(paste0(getwd(),"/Modules/Upload Module.R"))
+source(paste0(getwd(),"/Modules/Select Module.R"))
+source(paste0(getwd(),"/Modules/Dataprep Module.R"))
+source(paste0(getwd(),"/Modules/Preprocessing Module.R"))
+source(paste0(getwd(),"/Modules/Display Table Module.R"))
+source(paste0(getwd(),"/Modules/Sentiment Module.R"))
+source(paste0(getwd(),"/Modules/Info Module.R"))
 
 #Erzeugung der gemeinsamen Datenbasis
 assign("global", reactiveValues(

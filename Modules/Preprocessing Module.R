@@ -25,7 +25,8 @@ preprocessUI <- function(id) {
                               choiceNames = c("All Lowercase", 
                                               "Stemming"),
                               choiceValues = c("tolower",
-                                               "stem")),
+                                               "stem"),
+                              selected = c("tolower")),
            actionButton(ns("createDFM"), "Create DFM"))
   )
 }
