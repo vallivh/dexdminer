@@ -1,5 +1,3 @@
-source(paste0(getwd(), "/Modules/MongoDB parser.R"), local = TRUE)
-
 
 dataprepUI <- function(id) {
   ns <- NS(id)

@@ -9,6 +9,9 @@ library(quanteda)
 library(spacyr)
 library(plotly)
 
+assign("global_db", "mongotest", envir = .GlobalEnv)
+
+source(paste0(getwd(),"/Modules/MongoDB parser.R"))
 source(paste0(getwd(),"/Modules/Upload Module.R"))
 source(paste0(getwd(),"/Modules/Select Module.R"))
 source(paste0(getwd(),"/Modules/Dataprep Module.R"))
@@ -24,9 +27,9 @@ assign("global", reactiveValues(
   coll = NULL,
   corpus = NULL,
   tokens = NULL,
-  dfm = NULL
+  dfm = NULL,
+  nlp = NULL
 ), envir = .GlobalEnv)
-assign("global_db", "mongotest", envir = .GlobalEnv)
 
 
 #UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
@@ -81,11 +84,11 @@ ui <- dashboardPage(
         )
       ),
       tabItem(tabName = "preprocessing",
-              column(6,
+              column(8,
                      box(title = "Preprocessing",
                          preprocessUI("prep"),
                          width = 12)),
-              column(4, offset = 2,
+              column(4,
                      infoUI("prep_info"))
       ),
       tabItem(tabName = "sentiment",

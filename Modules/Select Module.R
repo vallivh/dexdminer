@@ -1,4 +1,3 @@
-source(paste0(getwd(), "/Modules/MongoDB parser.R"), local = TRUE)
 
 #connect to mongoDB and return all collections
 m <- mongoDB()
