@@ -27,6 +27,3 @@ m$index(add = '{"reviewText": "text", "summary": "text"}')
 
 date <- anytime(qry4$reviewTime)
 day(date)
-
-
-
