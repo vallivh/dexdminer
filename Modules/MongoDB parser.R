@@ -16,7 +16,7 @@ mongoDB <- function(collection = NULL, db = global_db) {
 parseFields <- function(flist){
   inBrackets <- paste0(paste0('"', flist, '": 1'), collapse = ",")
   fullQuery <- paste0("{", inBrackets, "}")
-  return(fullQuery) 
+  return(fullQuery)
 }
 
 # makes creating a text index a lot easier
@@ -24,9 +24,9 @@ parseFields <- function(flist){
 parseIndex <- function(field, text = FALSE){
   if (text)
     end <- '"text"'
-  else 
+  else
     end <- 1
-  
+
   inBrackets <- paste0(paste0('"', field, '": ', end), collapse = ",")
   fullQuery <- paste0("{", inBrackets, "}")
   return(fullQuery)
@@ -40,9 +40,9 @@ getIndex <- function(con = NULL, fields = TRUE, text = FALSE) {
   indexes <- con$index()$name
   if (text)
     end <- "_text"
-  else 
+  else
     end <- "_1"
-  
+
   index <- grep(paste0(end, "$"), indexes, value = TRUE)
   if (fields)
     index <- sub(end, "", index)
@@ -52,3 +52,9 @@ getIndex <- function(con = NULL, fields = TRUE, text = FALSE) {
   else
     return(index)
 }
+
+getCollections <- function(con = NULL) {
+  colist <- con$run('{"listCollections":1, "nameOnly": true}')
+  return(colist$cursor$firstBatch$name)
+}
+

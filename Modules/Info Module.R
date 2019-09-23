@@ -11,48 +11,52 @@ infoUI <- function(id) {
 
 
 info <- function(input, output, session) {
-  
+
   # zeigt die Anzahl der Dokumente (Zeilen) in der ausgewählten Collection an
   output$numdocs <- renderValueBox({
-    valueBox(value = format(global$m$count(), big.mark = ".", decimal.mark = ","), 
+    valueBox(value = format(global$m$count(),
+                            big.mark = ".",
+                            decimal.mark = ","),
              subtitle = "DOCUMENTS",
              icon = icon("list-ol"))
   })
-  
+
   # zeigt die Größe (in MB) der ausgewählten Collection an
   output$size <- renderValueBox({
     if (is.null(global$m$info()$stats$size))
-      size = 0
+      size <- 0
     else
-      size = global$m$info()$stats$size/10^6
-    
-    valueBox(value = format(size, big.mark = ".", decimal.mark = ",", digits = 3), 
+      size <- global$m$info()$stats$size / 10 ^ 6
+
+    valueBox(value = format(size, big.mark = ".",
+                            decimal.mark = ",",
+                            digits = 3),
              subtitle = "MB",
              icon = icon("hdd"))
   })
-  
+
   # zeigt die Anzahl der Docvars im aktuellen Corpus an
   # funktioniert noch nicht beim initiallen Erzeugen der Docvars
   output$docvars <- renderValueBox({
     if (is.null(getIndex(global$m)))
-      num = 0
+      num <- 0
     else
-      num = length(getIndex(global$m))
-    
-    valueBox(value = format(num, big.mark = ".", decimal.mark = ","), 
+      num <- length(getIndex(global$m))
+
+    valueBox(value = format(num, big.mark = ".", decimal.mark = ","),
              subtitle = "DOCVARS",
              icon = icon("tags"))
   })
-  
+
   # zeigt den Namen der ausgewählten Collection an
   # bzw. informiert über die im RAM verfügbaren TM Objekte
   output$objects <- renderValueBox({
     if (is.null(global$coll))
-      valueBox(value = "No Collection", 
+      valueBox(value = "No Collection",
                subtitle = "SELECTED",
                icon = icon("times"))
     else if (is.null(global$corpus))
-      valueBox(value = global$coll, 
+      valueBox(value = global$coll,
                subtitle = "SELECTED",
                icon = icon("check"))
     else {
@@ -61,8 +65,8 @@ info <- function(input, output, session) {
         val <- "Corpus, Tokens & DFM"
       else if (!is.null(global$tokens))
         val <- "Corpus & Tokens"
-      
-      valueBox(value = val, 
+
+      valueBox(value = val,
                subtitle = "CREATED",
                icon = icon("check"))
     }

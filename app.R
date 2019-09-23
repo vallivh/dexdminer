@@ -11,14 +11,14 @@ library(plotly)
 
 assign("global_db", "mongotest", envir = .GlobalEnv)
 
-source(paste0(getwd(), "/Modules/MongoDB parser.R"))
-source(paste0(getwd(), "/Modules/Upload Module.R"))
-source(paste0(getwd(), "/Modules/Select Module.R"))
-source(paste0(getwd(), "/Modules/Dataprep Module.R"))
-source(paste0(getwd(), "/Modules/Preprocessing Module.R"))
-source(paste0(getwd(), "/Modules/Display Table Module.R"))
-source(paste0(getwd(), "/Modules/Sentiment Module.R"))
-source(paste0(getwd(), "/Modules/Info Module.R"))
+source("Modules/MongoDB parser.R")
+source("Modules/Upload Module.R")
+source("Modules/Select Module.R")
+source("Modules/Dataprep Module.R")
+source("Modules/Preprocessing Module.R")
+source("Modules/Display Table Module.R")
+source("Modules/Sentiment Module.R")
+source("Modules/Info Module.R")
 
 #Erzeugung der gemeinsamen Datenbasis
 assign(
@@ -105,12 +105,13 @@ server <- function(input, output, session) {
   callModule(upload, "upload")
   callModule(select, "select")
   callModule(dataprep, "data")
-  observeEvent(global$data, {callModule(displayTable, "table", global$data)})
+  observeEvent(global$data, {
+    callModule(displayTable, "table", global$data)
+    })
   callModule(preprocess, "prep")
   callModule(sentiment, "sentiment")
   callModule(info, "data_info")
   callModule(info, "prep_info")
-  
   session$onSessionEnded(stopApp)
 }
 

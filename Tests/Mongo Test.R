@@ -6,7 +6,9 @@ library(ndjson)
 
 source(paste0(getwd(), "/Modules/MongoDB parser.R"))
 
-m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", collection = "Instruments", db = "mongotest")
+m <- mongo(url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb", 
+           collection = "Instruments", 
+           db = "mongotest")
 m$info()
 
 m$run('{"listCollections": 1, "nameOnly": true}')
