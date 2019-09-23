@@ -1,13 +1,16 @@
+library(shiny)
+
+source("Modules/MongoDB parser.R")
 
 #connect to mongoDB and return all collections
 m <- mongoDB()
-collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
+getCollections(m)
 
 selectUI <- function(id) {
   ns <- NS(id)
   tagList(
-    selectInput(ns("selectData"), 
-                label = "Please select a collection", 
+    selectInput(ns("selectData"),
+                label = "Please select a collection",
                 choices = c("", collections),
                 selected = ""),
     uiOutput(ns("selectVar")),
@@ -17,11 +20,13 @@ selectUI <- function(id) {
 
 
 select <- function(input, output, session) {
-  
+
   # when a new file is uploaded, it is automatically added and pre-selected
   observeEvent(global$coll, event.env = .GlobalEnv, ignoreNULL = TRUE, {
-    collections <- m$run('{"listCollections":1, "nameOnly": true}')$cursor$firstBatch$name
-    updateSelectInput(session, "selectData", choices = collections, selected = global$coll)
+    getCollections(m)
+    updateSelectInput(session, "selectData",
+                      choices = collections,
+                      selected = global$coll)
   })
 
   # when switching between collections, this resets the button and global$coll
@@ -29,10 +34,10 @@ select <- function(input, output, session) {
     global$coll <- NULL
     updateActionButton(session, "load", label = "Load Data")
   })
-  
-  # when Load Button is clicked, save selected data to global data frame or display an error message 
+
+  # when Load Button is clicked, save selected data to global data frame or display an error message
   observeEvent(input$load, {
-               
+
     if (is.empty(input$selectData))
       shinyalert(title = "No dataset selected",
                  text = "Please select a collection from the dropdown menu.",
@@ -41,7 +46,7 @@ select <- function(input, output, session) {
                  timer = 5000)
     else {
       global$m <- mongoDB(collection = input$selectData)
-      dur <- global$m$info()$stats$count/65000
+      dur <- global$m$info()$stats$count / 65000
       if (dur > 4)
         showNotification("The data is processing and will be displayed shortly.",
                          type = "warning",
