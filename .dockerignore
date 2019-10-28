@@ -1,0 +1,9 @@
+# ignore files/dir
+
+*.Rproj
+
+data
+
+Tests
+
+spacyr
