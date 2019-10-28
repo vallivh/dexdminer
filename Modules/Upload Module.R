@@ -39,9 +39,6 @@ upload <- function(input, output, session) {
                        type = "warning",
                        duration = dur)
     
-    print(input$file$size)
-    print(input$file$name)
-
     global$data <- ndjson::stream_in(input$file$datapath)
     },
     ignoreNULL = TRUE)
