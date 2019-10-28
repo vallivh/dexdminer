@@ -100,7 +100,9 @@ preprocess <- function(input, output, session) {
   })
 
   observeEvent(input$createNLP, {
-    spacy_initialize(entity = ("entity" %in% input$nlpOpt))
+    spacy_initialize(
+      python_executable = "/opt/conda/envs/spacy_condaenv/bin/python",
+      entity = ("entity" %in% input$nlpOpt))
     global$nlp <- spacy_parse(req(global$corpus),
                               pos = ("pos" %in% input$nlpOpt),
                               tag = ("tag" %in% input$nlpOpt),
