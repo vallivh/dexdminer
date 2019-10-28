@@ -9,15 +9,15 @@ library(quanteda)
 library(spacyr)
 library(plotly)
 
-dev_mode = FALSE
+docker = TRUE
 assign("global_db", "data", envir = .GlobalEnv)
 
-if (dev_mode) {
-  assign("mongo_ip", "127.0.0.1", envir = .GlobalEnv)
-  assign("py_ex", NULL, envir = .GlobalEnv)
-} else {
+if (docker) {
   assign("mongo_ip", "mongodb", envir = .GlobalEnv)
   assign("py_ex", "/opt/conda/envs/spacy_condaenv/bin/python", envir = .GlobalEnv)
+} else {
+  assign("mongo_ip", "127.0.0.1", envir = .GlobalEnv)
+  assign("py_ex", NULL, envir = .GlobalEnv)
 }
 
 source("Modules/MongoDB parser.R")
@@ -114,9 +114,9 @@ server <- function(input, output, session) {
   callModule(upload, "upload")
   callModule(select, "select")
   callModule(dataprep, "data")
-  # observeEvent(global$data, {
-  #   callModule(displayTable, "table", global$data)
-  #   })
+  observeEvent(global$data, {
+    callModule(displayTable, "table", global$data)
+    })
   callModule(preprocess, "prep")
   callModule(sentiment, "sentiment")
   callModule(info, "data_info")
