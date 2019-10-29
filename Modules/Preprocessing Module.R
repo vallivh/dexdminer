@@ -111,6 +111,6 @@ preprocess <- function(input, output, session) {
                               dependency = ("dependency" %in% input$nlpOpt),
                               nounphrase = ("nounphrase" %in% input$nlpOpt))
     spacy_finalize()
-    print(isolate(global$nlp))
+    updateActionButton(session, "createNLP", label = "NLP Set created")
   })
 }

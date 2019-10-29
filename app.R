@@ -47,7 +47,7 @@ assign(
 
 #UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
 ui <- dashboardPage(
-  dashboardHeader(title = "Testing Tool"),
+  dashboardHeader(title = "DexDminer"),
   dashboardSidebar(sidebarMenu(
     menuItem(
       "Data Selection",
