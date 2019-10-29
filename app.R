@@ -1,15 +1,24 @@
-library(mongolite)
-library(ndjson)
-library(rapportools)
 library(shiny)
 library(shinydashboard)
 library(shinyalert)
+library(mongolite)
+library(ndjson)
+library(rapportools)
 library(anytime)
 library(quanteda)
 library(spacyr)
 library(plotly)
 
-assign("global_db", "mongotest", envir = .GlobalEnv)
+docker = TRUE
+assign("global_db", "data", envir = .GlobalEnv)
+
+if (docker) {
+  assign("mongo_ip", "mongodb", envir = .GlobalEnv)
+  assign("py_ex", "/opt/conda/envs/spacy_condaenv/bin/python", envir = .GlobalEnv)
+} else {
+  assign("mongo_ip", "127.0.0.1", envir = .GlobalEnv)
+  assign("py_ex", NULL, envir = .GlobalEnv)
+}
 
 source("Modules/MongoDB parser.R")
 source("Modules/Upload Module.R")
@@ -38,7 +47,7 @@ assign(
 
 #UI sowohl fürs Dashboard als auch die Elemente auf den einzelnen Tabs
 ui <- dashboardPage(
-  dashboardHeader(title = "Testing Tool"),
+  dashboardHeader(title = "DexDminer"),
   dashboardSidebar(sidebarMenu(
     menuItem(
       "Data Selection",

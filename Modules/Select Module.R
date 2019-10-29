@@ -4,7 +4,7 @@ source("Modules/MongoDB parser.R")
 
 #connect to mongoDB and return all collections
 m <- mongoDB()
-getCollections(m)
+collections <- getCollections(m)
 
 selectUI <- function(id) {
   ns <- NS(id)
@@ -23,7 +23,7 @@ select <- function(input, output, session) {
 
   # when a new file is uploaded, it is automatically added and pre-selected
   observeEvent(global$coll, event.env = .GlobalEnv, ignoreNULL = TRUE, {
-    getCollections(m)
+    collections <- getCollections(m)
     updateSelectInput(session, "selectData",
                       choices = collections,
                       selected = global$coll)

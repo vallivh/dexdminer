@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+    container_name: app
+    ports:
+      - 80:3838
+    volumes:
+      - .:/srv/shiny-server/
+      - packages:/usr/local/lib/R/site-library
+      - conda:/opt/conda
+    depends_on:
+      - mongodb
+      - spacy
+  mongodb:
+    image: mongo:4.2.0
+    container_name: mongodb
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - db:/data/db
+  spacy:
+    image: vallivh/spacyr:1.1
+    container_name: spacy
+    ports:
+      - 8888:8888
+    volumes:
+      - conda:/opt/conda
+  rstudio:
+    image: rocker/rstudio
+    container_name: rstudio
+    restart: on-failure
+    environment:
+      - PASSWORD=test
+      - DISABLE_AUTH=TRUE
+#      - ADD=shiny
+    ports:
+      - 8787:8787
+    volumes:
+      - .:/home/rstudio/info-app
+      - packages:/usr/local/lib/R/site-library
+      - conda:/opt/conda
+    depends_on:
+      - app
+      - spacy
+
+volumes:
+  db:
+  packages:
+  conda:

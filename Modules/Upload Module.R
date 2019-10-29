@@ -38,8 +38,8 @@ upload <- function(input, output, session) {
       showNotification("The data is processing and will be displayed shortly.",
                        type = "warning",
                        duration = dur)
-
-    global$data <- stream_in(input$file$datapath)
+    
+    global$data <- ndjson::stream_in(input$file$datapath)
     },
     ignoreNULL = TRUE)
 

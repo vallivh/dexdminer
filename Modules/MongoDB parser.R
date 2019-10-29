@@ -2,14 +2,15 @@ library(mongolite)
 
 # makes connecting to MongoDB a lot easier, default db should be changed here
 mongoDB <- function(collection = NULL, db = global_db) {
+  uri = paste0("mongodb://", mongo_ip, ":27017/")
   if (is.null(collection)) {
     mongo(db = db,
-          url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
+          url = uri)
   }
   else
     mongo(collection = collection,
           db = db,
-          url = "mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb")
+          url = uri)
 }
 
 # converts a list of fields into a json string to be used in $find(..., fields = )
@@ -32,7 +33,7 @@ parseIndex <- function(field, text = FALSE){
   return(fullQuery)
 }
 
-# finds all indexes of a collaction 
+# finds all indexes of a collaction
 # either returns the text index or all other indexes
 # can return full index names or original field names
 # makes use of the automatic naming of indexes
@@ -57,4 +58,3 @@ getCollections <- function(con = NULL) {
   colist <- con$run('{"listCollections":1, "nameOnly": true}')
   return(colist$cursor$firstBatch$name)
 }
-

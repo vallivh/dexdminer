@@ -100,7 +100,9 @@ preprocess <- function(input, output, session) {
   })
 
   observeEvent(input$createNLP, {
-    spacy_initialize(entity = ("entity" %in% input$nlpOpt))
+    spacy_initialize(
+      python_executable = py_ex,
+      entity = ("entity" %in% input$nlpOpt))
     global$nlp <- spacy_parse(req(global$corpus),
                               pos = ("pos" %in% input$nlpOpt),
                               tag = ("tag" %in% input$nlpOpt),
@@ -109,6 +111,6 @@ preprocess <- function(input, output, session) {
                               dependency = ("dependency" %in% input$nlpOpt),
                               nounphrase = ("nounphrase" %in% input$nlpOpt))
     spacy_finalize()
-    print(isolate(global$nlp))
+    updateActionButton(session, "createNLP", label = "NLP Set created")
   })
 }
