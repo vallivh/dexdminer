@@ -1,7 +1,7 @@
 # Overview
 This image creates a Docker container that
 generates a conda environment which can be used
-with the R package `spacyr`.
+with the R package [spacyr](https://spacyr.quanteda.io).
 
 It is based on the `continuumio/miniconda3` image and
 activates an environment called `spacy_condaenv` with
@@ -20,4 +20,4 @@ spacy_initialize(python_executable = "/opt/conda/envs/spacy_condaenv/bin/python"
 outside of Docker).
 
 You can find an exemplary docker-compose file at
-[vallivh/info-app](https://github.com/vallivh/info-app/blob/master/docker-compose.yml).
+[vallivh/info-app](https://github.com/vallivh/dexdminer/blob/master/docker-compose.yml).
