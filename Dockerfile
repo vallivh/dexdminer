@@ -17,7 +17,8 @@ RUN R -e "install.packages(c('shiny', \
                               'anytime', \
                               'quanteda', \
                               'spacyr', \
-                              'plotly'), \
+                              'plotly', \
+                              'DT'), \
           repos='https://cran.r-project.org')"
 
 COPY ./shinyserver/shiny-server.conf /srv/shiny-server/shiny-server.conf
