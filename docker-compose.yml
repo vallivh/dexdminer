@@ -40,7 +40,7 @@ services:
     ports:
       - 8787:8787
     volumes:
-      - .:/home/rstudio/info-app
+      - .:/home/rstudio/dexdminer
       - packages:/usr/local/lib/R/site-library
       - conda:/opt/conda
     depends_on:
