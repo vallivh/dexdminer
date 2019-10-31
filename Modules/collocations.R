@@ -1,13 +1,10 @@
-source(paste0(getwd(),
-              "/Funktionen/",
-              "collocations.R"),
-       local = TRUE)
+source("functions/find_collo.R")
 
 #UI-----------------------------
-find_collocationUI <- function(id) {
+collocationUI <- function(id) {
   ns <- NS(id)
   tagList(
-    actionButton(ns("get_coll"), label = "Update Collocations"),
+    actionButton(ns("update"), label = "Update Collocations"),
     numericInput(
       ns("coll_size"),
       label = "Size of the Collocation",
@@ -27,19 +24,19 @@ find_collocationUI <- function(id) {
       width = 700
       
     ),
-    dataTableOutput(ns("coll_table"), width = 900)
+    DT::dataTableOutput(ns("coll_table"))
   )
 }
 
 #Server-------------------------
-find_collocation <- function(input, output, session) {
-  col_datatable <- eventReactive(input$get_coll, {
+collocation <- function(input, output, session) {
+  col_datatable <- eventReactive(input$update, {
     col_dataframe <- find_coll(
-      Token_object = Token_data(),
+      Token_object = global$tokens,
       size = input$coll_size,
       min_count = input$min_count
     )
     return(col_dataframe)
   })
-  output$coll_table <- renderDataTable(col_datatable())
+  output$coll_table <- DT::renderDataTable(col_datatable())
 }

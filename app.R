@@ -27,6 +27,7 @@ source("modules/dataprep.R")
 source("modules/preprocessing.R")
 source("modules/display table.R")
 source("modules/timeseries.R")
+source("modules/collocations.R")
 source("modules/sentiment.R")
 source("modules/info.R")
 
@@ -61,6 +62,9 @@ ui <- dashboardPage(
     menuItem("Timeseries",
              tabName = "timeseries",
              icon = icon("history")),
+    menuItem("Collocations",
+             tabName = "collocations",
+             icon = icon("text-size", lib = "glyphicon")),
     menuItem(
       "Sentiment Analysis",
       tabName = "sentiment",
@@ -111,6 +115,9 @@ ui <- dashboardPage(
     tabItem(tabName = "timeseries",
             box(title = "Single Word Timeseries",
                 timeseriesUI("timeseries"))),
+    tabItem(tabName = "collocations",
+            box(title = "Collocations",
+                collocationUI("collocations"))),
     tabItem(tabName = "sentiment",
             box(title = "Sentiment Analysis",
                 sentimentUI("sentiment")))
@@ -121,11 +128,12 @@ server <- function(input, output, session) {
   callModule(upload, "upload")
   callModule(select, "select")
   callModule(dataprep, "data")
-  callModule(timeseries, "timeseries")
   observeEvent(global$data, {
     callModule(displayTable, "table", global$data)
     })
   callModule(preprocess, "prep")
+  callModule(timeseries, "timeseries")
+  callModule(collocation, "collocations")
   callModule(sentiment, "sentiment")
   callModule(info, "data_info")
   callModule(info, "prep_info")
