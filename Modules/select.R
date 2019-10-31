@@ -1,6 +1,6 @@
 library(shiny)
 
-source("Modules/MongoDB parser.R")
+source("functions/mongo parser.R")
 
 #connect to mongoDB and return all collections
 m <- mongoDB()

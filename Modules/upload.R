@@ -2,7 +2,7 @@ library(shiny)
 library(shinyalert)
 library(ndjson)
 
-source("Modules/MongoDB parser.R")
+source("functions/mongo parser.R")
 
 #defines the UI for the Upload Data Module
 uploadUI <- function(id){
