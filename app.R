@@ -9,7 +9,7 @@ library(quanteda)
 library(spacyr)
 library(plotly)
 
-docker = TRUE
+docker = F
 assign("global_db", "data", envir = .GlobalEnv)
 
 if (docker) {
@@ -20,14 +20,16 @@ if (docker) {
   assign("py_ex", NULL, envir = .GlobalEnv)
 }
 
-source("Modules/MongoDB parser.R")
-source("Modules/Upload Module.R")
-source("Modules/Select Module.R")
-source("Modules/Dataprep Module.R")
-source("Modules/Preprocessing Module.R")
-source("Modules/Display Table Module.R")
-source("Modules/Sentiment Module.R")
-source("Modules/Info Module.R")
+source("functions/mongo parser.R")
+source("modules/upload.R")
+source("modules/select.R")
+source("modules/dataprep.R")
+source("modules/preprocessing.R")
+source("modules/display table.R")
+source("modules/timeseries.R")
+source("modules/collocations.R")
+source("modules/sentiment.R")
+source("modules/info.R")
 
 #Erzeugung der gemeinsamen Datenbasis
 assign(
@@ -57,6 +59,12 @@ ui <- dashboardPage(
     menuItem("Preprocessing",
              tabName = "preprocessing",
              icon = icon("edit")),
+    menuItem("Timeseries",
+             tabName = "timeseries",
+             icon = icon("history")),
+    menuItem("Collocations",
+             tabName = "collocations",
+             icon = icon("text-size", lib = "glyphicon")),
     menuItem(
       "Sentiment Analysis",
       tabName = "sentiment",
@@ -104,6 +112,12 @@ ui <- dashboardPage(
             ),
             column(4,
                    infoUI("prep_info"))),
+    tabItem(tabName = "timeseries",
+            box(title = "Single Word Timeseries",
+                timeseriesUI("timeseries"))),
+    tabItem(tabName = "collocations",
+            box(title = "Collocations",
+                collocationUI("collocations"))),
     tabItem(tabName = "sentiment",
             box(title = "Sentiment Analysis",
                 sentimentUI("sentiment")))
@@ -118,6 +132,8 @@ server <- function(input, output, session) {
     callModule(displayTable, "table", global$data)
     })
   callModule(preprocess, "prep")
+  callModule(timeseries, "timeseries")
+  callModule(collocation, "collocations")
   callModule(sentiment, "sentiment")
   callModule(info, "data_info")
   callModule(info, "prep_info")
