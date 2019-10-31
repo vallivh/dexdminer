@@ -9,7 +9,7 @@ library(quanteda)
 library(spacyr)
 library(plotly)
 
-docker = TRUE
+docker = F
 assign("global_db", "data", envir = .GlobalEnv)
 
 if (docker) {
@@ -20,15 +20,15 @@ if (docker) {
   assign("py_ex", NULL, envir = .GlobalEnv)
 }
 
-source("modules/MongoDB parser.R")
-source("modules/Upload Module.R")
-source("modules/Select Module.R")
-source("modules/Dataprep Module.R")
-source("modules/Preprocessing Module.R")
-source("modules/Display Table Module.R")
+source("functions/mongo parser.R")
+source("modules/upload.R")
+source("modules/select.R")
+source("modules/dataprep.R")
+source("modules/preprocessing.R")
+source("modules/display table.R")
 source("modules/timeseries.R")
-source("modules/Sentiment Module.R")
-source("modules/Info Module.R")
+source("modules/sentiment.R")
+source("modules/info.R")
 
 #Erzeugung der gemeinsamen Datenbasis
 assign(
