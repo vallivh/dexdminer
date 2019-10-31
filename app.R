@@ -20,14 +20,15 @@ if (docker) {
   assign("py_ex", NULL, envir = .GlobalEnv)
 }
 
-source("Modules/MongoDB parser.R")
-source("Modules/Upload Module.R")
-source("Modules/Select Module.R")
-source("Modules/Dataprep Module.R")
-source("Modules/Preprocessing Module.R")
-source("Modules/Display Table Module.R")
-source("Modules/Sentiment Module.R")
-source("Modules/Info Module.R")
+source("modules/MongoDB parser.R")
+source("modules/Upload Module.R")
+source("modules/Select Module.R")
+source("modules/Dataprep Module.R")
+source("modules/Preprocessing Module.R")
+source("modules/Display Table Module.R")
+source("modules/timeseries.R")
+source("modules/Sentiment Module.R")
+source("modules/Info Module.R")
 
 #Erzeugung der gemeinsamen Datenbasis
 assign(
@@ -57,6 +58,9 @@ ui <- dashboardPage(
     menuItem("Preprocessing",
              tabName = "preprocessing",
              icon = icon("edit")),
+    menuItem("Timeseries",
+             tabName = "timeseries",
+             icon = icon("history")),
     menuItem(
       "Sentiment Analysis",
       tabName = "sentiment",
@@ -104,6 +108,9 @@ ui <- dashboardPage(
             ),
             column(4,
                    infoUI("prep_info"))),
+    tabItem(tabName = "timeseries",
+            box(title = "Single Word Timeseries",
+                timeseriesUI("timeseries"))),
     tabItem(tabName = "sentiment",
             box(title = "Sentiment Analysis",
                 sentimentUI("sentiment")))
@@ -114,6 +121,7 @@ server <- function(input, output, session) {
   callModule(upload, "upload")
   callModule(select, "select")
   callModule(dataprep, "data")
+  callModule(timeseries, "timeseries")
   observeEvent(global$data, {
     callModule(displayTable, "table", global$data)
     })
