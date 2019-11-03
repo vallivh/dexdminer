@@ -46,7 +46,7 @@ timeseries <- function(input, output, session) {
     colnames(df) <- lapply(colnames(df), function(x){sub("_id.", "", x)})
     
     output$bar_chart <- renderPlot({
-      ggplot(df, aes(y=count, x=month)) +
+      ggplot(df, aes(y=count, x=month.abb[month])) +
         geom_bar(aes(fill=rating), stat="identity")
     })
   })

@@ -23,7 +23,7 @@ RUN R -e "install.packages(c('shiny', \
 
 COPY ./shinyserver/shiny-server.conf /srv/shiny-server/shiny-server.conf
 COPY ./shinyserver/shiny-server.sh /usr/bin/shiny-server.sh
-COPY . /srv/shiny-server/
+COPY . /srv/shiny-server/dexdminer
 
 EXPOSE 3838
 

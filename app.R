@@ -9,7 +9,7 @@ library(quanteda)
 library(spacyr)
 library(plotly)
 
-docker = F
+docker = TRUE
 assign("global_db", "data", envir = .GlobalEnv)
 
 if (docker) {
