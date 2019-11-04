@@ -11,7 +11,6 @@ library(plotly)
 library(openxlsx)
 
 docker = FALSE
-assign("global_db", "data", envir = .GlobalEnv)
 
 if (docker) {
   assign("mongo_ip", "mongodb", envir = .GlobalEnv)
@@ -38,7 +37,7 @@ source("modules/info.R")
 assign(
   "global",
   reactiveValues(
-    m = mongoDB(),
+    m = mongoDB(db = "data"),
     data = NULL,
     coll = NULL,
     corpus = NULL,

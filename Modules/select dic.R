@@ -14,7 +14,7 @@ selectDicUI <- function(id) {
                 choices = c("", dicoll),
                 selected = ""),
     uiOutput(ns("selectVar")),
-    actionButton(ns("load"), "Load Data")
+    actionButton(ns("load"), "Load Dictionary")
   )
 }
 

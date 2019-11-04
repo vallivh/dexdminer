@@ -30,7 +30,7 @@ services:
     volumes:
       - conda:/opt/conda
   rstudio:
-    image: rocker/rstudio
+    image: rocker/rstudio:3.6.1
     container_name: rstudio
     restart: on-failure
     environment:
