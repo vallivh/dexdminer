@@ -9,6 +9,7 @@ library(quanteda)
 library(spacyr)
 library(plotly)
 library(openxlsx)
+library(DT)
 
 docker = FALSE
 
@@ -25,6 +26,7 @@ source("modules/upload.R")
 source("modules/select.R")
 source("modules/upload dic.R")
 source("modules/select dic.R")
+source("modules/modify dic.R")
 source("modules/dataprep.R")
 source("modules/preprocessing.R")
 source("modules/display table.R")
@@ -124,6 +126,14 @@ ui <- dashboardPage(
             selectDicUI("selDic"),
             width = 12
         )
+      ),
+      column(
+        6,
+        box(
+          title = "Modify the dictionary",
+          modifyDicUI("modDic"),
+          width = 12
+        )
       )
     ),
     tabItem(tabName = "preprocessing",
@@ -152,6 +162,7 @@ server <- function(input, output, session) {
   callModule(select, "select")
   callModule(uploadDic, "upDic")
   callModule(selectDic, "selDic")
+  callModule(modifyDic, "modDic")
   callModule(dataprep, "data")
   observeEvent(global$data, {
     callModule(displayTable, "table", global$data)
