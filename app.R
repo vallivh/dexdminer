@@ -8,8 +8,9 @@ library(anytime)
 library(quanteda)
 library(spacyr)
 library(plotly)
+library(openxlsx)
 
-docker = F
+docker = FALSE
 assign("global_db", "data", envir = .GlobalEnv)
 
 if (docker) {
@@ -23,6 +24,8 @@ if (docker) {
 source("functions/mongo parser.R")
 source("modules/upload.R")
 source("modules/select.R")
+source("modules/upload dic.R")
+source("modules/select dic.R")
 source("modules/dataprep.R")
 source("modules/preprocessing.R")
 source("modules/display table.R")
@@ -41,7 +44,10 @@ assign(
     corpus = NULL,
     tokens = NULL,
     dfm = NULL,
-    nlp = NULL
+    nlp = NULL,
+    mdic = mongoDB(db = "dics"),
+    dic = NULL,
+    dicoll = NULL
   ),
   envir = .GlobalEnv
 )
@@ -51,11 +57,12 @@ assign(
 ui <- dashboardPage(
   dashboardHeader(title = "DexDminer"),
   dashboardSidebar(sidebarMenu(
-    menuItem(
-      "Data Selection",
-      tabName = "data_selection",
-      icon = icon("database")
-    ),
+    menuItem("Data Selection",
+             tabName = "data_selection",
+             icon = icon("database")),
+    menuItem("Dictionary",
+             tabName = "dictionary",
+             icon = icon("book")),
     menuItem("Preprocessing",
              tabName = "preprocessing",
              icon = icon("edit")),
@@ -103,6 +110,23 @@ ui <- dashboardPage(
         displayTableUI("table")
       )
     ),
+    tabItem(
+      tabName = "dictionary",
+      column(
+        4,
+        box(
+          title = "Upload a dictionary...",
+          uploadDicUI("upDic"),
+          collapsible = TRUE,
+          collapsed = TRUE,
+          width = 12
+        ),
+        box(title = "...or select an existing one.",
+            selectDicUI("selDic"),
+            width = 12
+        )
+      )
+    ),
     tabItem(tabName = "preprocessing",
             column(
               8,
@@ -127,6 +151,8 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   callModule(upload, "upload")
   callModule(select, "select")
+  callModule(uploadDic, "upDic")
+  callModule(selectDic, "selDic")
   callModule(dataprep, "data")
   observeEvent(global$data, {
     callModule(displayTable, "table", global$data)
