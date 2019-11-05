@@ -20,6 +20,7 @@ modifyDic <- function(input, output, session) {
   proxy = dataTableProxy("table")
   
   observeEvent(global$dicoll, {
+<<<<<<< HEAD
     v$dic <<- global$dic[names(global$dic) != "_id"]
     updateTextInput(session, "name", value = global$dicoll)
     updateActionButton(session, "update",
@@ -34,6 +35,12 @@ modifyDic <- function(input, output, session) {
   
   output$table <- renderDT({
     datatable(v$dic, editable = TRUE)
+=======
+    dic(global$dic[names(global$dic) != "_id"])
+    output$table <- renderDT({
+      datatable(dic(), editable = "column")
+    })
+>>>>>>> 324243b7c565cbf9f0f45ce42f093398f2a7c3b1
   })
   
   observeEvent(input$table_cell_edit, {
@@ -46,10 +53,19 @@ modifyDic <- function(input, output, session) {
   })
 
   observeEvent(input$update, {
+<<<<<<< HEAD
     global$mdic$drop()
     global$mdic <- mongoDB(input$name, db = "dics")
     global$mdic$insert(v$dic)
     updateActionButton(session, "update",
+=======
+    proxy = dataTableProxy("table")
+    replaceData(proxy, dic())
+    print(dic())
+    # global$mdic$drop()
+    # global$mdic$insert(dic())
+    updateActionButton(session, "update", 
+>>>>>>> 324243b7c565cbf9f0f45ce42f093398f2a7c3b1
                        label = "Dictionary updated")
     global$dicoll <- input$name
   })
