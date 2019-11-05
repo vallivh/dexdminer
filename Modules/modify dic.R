@@ -14,16 +14,18 @@ modifyDic <- function(input, output, session) {
   dic <- reactiveVal()
   
   observeEvent(global$dicoll, {
-    dic(datatable(global$dic[names(global$dic) != "_id"], editable = TRUE))
-    
+    dic(global$dic[names(global$dic) != "_id"])
     output$table <- renderDT({
-      dic()
+      datatable(dic(), editable = "column")
     })
   })
   
   observeEvent(input$update, {
-    global$mdic$drop()
-    global$mdic$insert(dic()$x$data[!1])
+    proxy = dataTableProxy("table")
+    replaceData(proxy, dic())
+    print(dic())
+    # global$mdic$drop()
+    # global$mdic$insert(dic())
     updateActionButton(session, "update", 
                        label = "Dictionary updated")
   })
