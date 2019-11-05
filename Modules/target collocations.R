@@ -1,8 +1,7 @@
-source(paste0(getwd(), "/Funktionen/target_collocation.R"),
-       local = TRUE)
+source("functions/target_collocation.R")
 
 #UI---------------------
-target_collUI <- function(id) {
+targetColloUI <- function(id) {
   ns <- NS(id)
   tagList(
     sliderInput(
@@ -34,9 +33,8 @@ target_collUI <- function(id) {
     ),
     textInput(
       ns("target_word"),
-      placeholder = "lower cases",
+      placeholder = "lower case",
       label = "Word for Collocations",
-      value = "Example",
       width = 600
     ),
     actionButton(ns("refresh_tc"), label = "Update Collocation"),
@@ -45,16 +43,16 @@ target_collUI <- function(id) {
 }
 
 #Server----------------------------
-target_coll <- function(input, output, session) {
+targetCollo <- function(input, output, session) {
   target_coll_data <- eventReactive(input$refresh_tc, {
     target_collocation(
       words = input$target_word,
-      Token_object = Token_data(),
+      Token_object = global$tokens,
       window_count = input$window_count,
       min_n_target = input$min_n_target,
       return_count = input$return_count
     )
   })
   output$target_coll_out <-
-    DT::renderDataTable(target_coll_data())
+    renderDT(target_coll_data())
 }
