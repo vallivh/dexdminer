@@ -6,7 +6,7 @@ plot_dictionaries <-
     missing_values2 <- dictio_2[[1]] == ""
     dictio_2[[1]][missing_values2] <- "-"
     if (intervall == "year") {
-      dfm_runtime <- dfm_group(dfm, groups = "year")
+      dfm_runtime <- dfm_group(dfm, groups = "date")
       data <-
         data.frame(
           dic1_counts = rowSums(dfm_lookup(dfm_runtime, dictionary = dictio_1)) ,
@@ -26,7 +26,7 @@ plot_dictionaries <-
       )
     }
     if (intervall == "month") {
-      dfm_runtime <- dfm_group(dfm, groups = "month")
+      dfm_runtime <- dfm_group(dfm, groups = month(docvars(dfm, "date")))
       data <-
         data.frame(
           dic1_counts = rowSums(dfm_lookup(dfm_runtime, dictionary = dictio_1)) ,

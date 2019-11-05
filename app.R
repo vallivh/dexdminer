@@ -26,12 +26,13 @@ if (docker) {
 source("functions/mongo parser.R")
 source("modules/upload.R")
 source("modules/select.R")
+source("modules/dataprep.R")
 source("modules/display table.R")
+source("modules/preprocessing.R")
 source("modules/upload dic.R")
 source("modules/select dic.R")
 source("modules/modify dic.R")
-source("modules/dataprep.R")
-source("modules/preprocessing.R")
+source("modules/compare dics.R")
 source("modules/info.R")
 source("modules/timeseries.R")
 source("modules/collocations.R")
@@ -65,12 +66,15 @@ ui <- dashboardPage(
     menuItem("Data Selection",
              tabName = "data_selection",
              icon = icon("database")),
-    menuItem("Dictionary",
-             tabName = "dictionary",
-             icon = icon("book")),
     menuItem("Preprocessing",
              tabName = "preprocessing",
              icon = icon("edit")),
+    menuItem("Dictionary",
+             tabName = "dictionary",
+             icon = icon("book")),
+    menuItem("Compare Dictionares",
+             tabName = "compare_dics",
+             icon = icon("book")),
     menuItem("Timeseries",
              tabName = "timeseries",
              icon = icon("history")),
@@ -120,6 +124,15 @@ ui <- dashboardPage(
         displayTableUI("table")
       )
     ),
+    tabItem(tabName = "preprocessing",
+            column(
+              8,
+              box(title = "Preprocessing",
+                  preprocessUI("prep"),
+                  width = 12)
+            ),
+            column(4,
+                   infoUI("prep_info"))),
     tabItem(
       tabName = "dictionary",
       column(
@@ -145,15 +158,9 @@ ui <- dashboardPage(
         )
       )
     ),
-    tabItem(tabName = "preprocessing",
-            column(
-              8,
-              box(title = "Preprocessing",
-                  preprocessUI("prep"),
-                  width = 12)
-            ),
-            column(4,
-                   infoUI("prep_info"))),
+    tabItem(tabName = "compare_dics",
+            box(title = "Compare two dictionaries",
+                compareDicsUI("compare"))),
     tabItem(tabName = "timeseries",
             box(title = "Single Word Timeseries",
                 timeseriesUI("timeseries"))),
@@ -175,14 +182,15 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   callModule(upload, "upload")
   callModule(select, "select")
-  callModule(uploadDic, "upDic")
-  callModule(selectDic, "selDic")
-  callModule(modifyDic, "modDic")
   callModule(dataprep, "data")
   observeEvent(global$data, {
     callModule(displayTable, "table", global$data)
-    })
+  })
   callModule(preprocess, "prep")
+  callModule(uploadDic, "upDic")
+  callModule(selectDic, "selDic")
+  callModule(modifyDic, "modDic")
+  callModule(compareDics, "compare")
   callModule(timeseries, "timeseries")
   callModule(collocation, "collocations")
   callModule(targetCollo, "target")
