@@ -2,7 +2,7 @@ library(shiny)
 
 source("functions/mongo parser.R")
 
-#connect to mongoDB and return all collections
+#connect to mongoDB and return all dictionary collections
 mdic <- mongoDB(db = "dics")
 dicoll <- getCollections(mdic)
 
