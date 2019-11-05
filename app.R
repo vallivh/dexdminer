@@ -5,11 +5,13 @@ library(mongolite)
 library(ndjson)
 library(rapportools)
 library(anytime)
+library(lubridate)
 library(quanteda)
 library(spacyr)
 library(plotly)
 library(openxlsx)
 library(DT)
+library(topicmodels)
 
 docker = FALSE
 

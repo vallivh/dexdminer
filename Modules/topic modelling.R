@@ -5,10 +5,10 @@ tmUI <- function(id) {
   ns <- NS(id)
   tagList(
     sliderInput(
-      ns("numb_of_docs"),
+      ns("num_of_docs"),
       label = "Number of documents",
       min = 10,
-      max = 200,
+      max = 2000,
       step = 10,
       value = 50,
       width = '400px'
@@ -62,7 +62,7 @@ tm <- function(input, output, session) {
   datatable_r <- eventReactive(input$start, {
       a <- tm_func(
         dfm_object = global$dfm,
-        numb_of_docs = input$numb_of_docs,
+        num_of_docs = input$num_of_docs,
         min_termfreq = input$min_termfreq,
         max_docfreq = input$max_docfreq,
         topic_number = input$topic_number,

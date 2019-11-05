@@ -1,18 +1,19 @@
+library(topicmodels)
 
 tm_func <-
   function(dfm_object,
-           numb_of_docs = 50,
+           num_of_docs = 50,
            min_termfreq = 0.8,
            max_docfreq = 0.2,
            topic_number = 2,
            return_words = 10) {
 
     #auswählen eines Datensatzes---------
-    dfm_runtime <- dfm_object[1:numb_of_docs]
+    dfm_runtime <- dfm_object[1:num_of_docs]
     
     #Gruppieren des Datensatzes nach ID des Produktes---------
-    dfm_runtime <-
-      dfm_group(dfm_runtime, groups = docvars(dfm_runtime, field = "asin"))
+    # dfm_runtime <-
+    #   dfm_group(dfm_runtime, groups = docvars(dfm_runtime, field = "asin"))
     
     #Trimmen der dfm und entfernen von nichts sagenden Worten---------
     dfm_trimed <-
