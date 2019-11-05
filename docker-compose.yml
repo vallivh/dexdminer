@@ -9,6 +9,7 @@ services:
       - 80:3838
     volumes:
       - .:/srv/shiny-server/
+      - shiny_logs:/var/log/shiny-server
       - packages:/usr/local/lib/R/site-library
       - conda:/opt/conda
     depends_on:
@@ -48,6 +49,7 @@ services:
       - spacy
 
 volumes:
+  shiny_logs:
   db:
   packages:
   conda:
