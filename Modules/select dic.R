@@ -22,7 +22,7 @@ selectDicUI <- function(id) {
 selectDic <- function(input, output, session) {
 
   # when a new file is uploaded, it is automatically added and pre-selected
-  observeEvent(global$dicoll, event.env = .GlobalEnv, ignoreNULL = TRUE, {
+  observeEvent(global$dicoll, ignoreInit = TRUE, {
     dicoll <- getCollections(mdic)
     updateSelectInput(session, "selectDic",
                       choices = dicoll,
