@@ -13,7 +13,7 @@ library(openxlsx)
 library(DT)
 library(topicmodels)
 
-docker = FALSE
+docker = T
 
 if (docker) {
   assign("mongo_ip", "mongodb", envir = .GlobalEnv)
@@ -89,7 +89,7 @@ ui <- dashboardPage(
              icon = icon("smile")),
     menuItem("Topic Modelling",
              tabName = "topic",
-             icon = icon("project-diagram"))    
+             icon = icon("project-diagram"))
     )
   ),
   dashboardBody(tabItems(
@@ -118,7 +118,7 @@ ui <- dashboardPage(
         )
       ),
       column(4,
-             infoUI("data_info"))), 
+             infoUI("data_info"))),
       fluidRow(
         tags$h2("Explore the data", style = "text-align:center"),
         displayTableUI("table")
