@@ -24,16 +24,18 @@ if (docker) {
 source("functions/mongo parser.R")
 source("modules/upload.R")
 source("modules/select.R")
+source("modules/display table.R")
 source("modules/upload dic.R")
 source("modules/select dic.R")
 source("modules/modify dic.R")
 source("modules/dataprep.R")
 source("modules/preprocessing.R")
-source("modules/display table.R")
+source("modules/info.R")
 source("modules/timeseries.R")
 source("modules/collocations.R")
+source("modules/target collocations.R")
 source("modules/sentiment.R")
-source("modules/info.R")
+source("modules/topic modelling.R")
 
 #Erzeugung der gemeinsamen Datenbasis
 assign(
@@ -73,12 +75,17 @@ ui <- dashboardPage(
     menuItem("Collocations",
              tabName = "collocations",
              icon = icon("text-size", lib = "glyphicon")),
-    menuItem(
-      "Sentiment Analysis",
-      tabName = "sentiment",
-      icon = icon("smile")
+    menuItem("Target Collocations",
+             tabName = "target_collo",
+             icon = icon("bullseye")),
+    menuItem("Sentiment Analysis",
+             tabName = "sentiment",
+             icon = icon("smile")),
+    menuItem("Topic Modelling",
+             tabName = "topic",
+             icon = icon("project-diagram"))    
     )
-  )),
+  ),
   dashboardBody(tabItems(
     tabItem(
       tabName = "data_selection",
@@ -105,7 +112,7 @@ ui <- dashboardPage(
         )
       ),
       column(4,
-             infoUI("data_info"))),
+             infoUI("data_info"))), 
       fluidRow(
         tags$h2("Explore the data", style = "text-align:center"),
         displayTableUI("table")
@@ -151,9 +158,15 @@ ui <- dashboardPage(
     tabItem(tabName = "collocations",
             box(title = "Collocations",
                 collocationUI("collocations"))),
+    tabItem(tabName = "target_collo",
+            box(title = "Target Collocations",
+                targetColloUI("target"))),
     tabItem(tabName = "sentiment",
             box(title = "Sentiment Analysis",
-                sentimentUI("sentiment")))
+                sentimentUI("sentiment"))),
+    tabItem(tabName = "topic",
+            box(title = "Topic Modelling",
+                tmUI("tm")))
   ))
 )
 
@@ -170,7 +183,9 @@ server <- function(input, output, session) {
   callModule(preprocess, "prep")
   callModule(timeseries, "timeseries")
   callModule(collocation, "collocations")
+  callModule(targetCollo, "target")
   callModule(sentiment, "sentiment")
+  callModule(tm, "tm")
   callModule(info, "data_info")
   callModule(info, "prep_info")
   session$onSessionEnded(stopApp)
