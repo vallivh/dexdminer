@@ -55,6 +55,5 @@ select <- function(input, output, session) {
       global$data <- global$m$find('{}', fields = '{}')
       updateActionButton(session, "load", label = "Loaded to RAM")
     }
-    print(global$m)
   })
 }

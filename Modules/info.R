@@ -51,7 +51,7 @@ info <- function(input, output, session) {
   # zeigt den Namen der ausgewählten Collection an
   # bzw. informiert über die im RAM verfügbaren TM Objekte
   output$objects <- renderValueBox({
-    if (is.null(global$coll))
+    if (is.empty(global$coll))
       valueBox(value = "No Collection",
                subtitle = "SELECTED",
                icon = icon("times"))

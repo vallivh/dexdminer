@@ -2,6 +2,8 @@ library(shiny)
 library(jsonlite)
 library(plotly)
 
+source("functions/helper.R")
+
 sentimentUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -16,11 +18,8 @@ sentiment <- function(input, output, session) {
 
   # Erzeugt aus global$tokens einen Data Frame mit Document ID und Anzahl der pos/neg Wörter im Dokument
   df <- reactive({
-    lookup <- dfm(tokens_lookup(req(global$tokens), data_dictionary_LSD2015))
-    df <- convert(lookup, to = "data.frame")
-    df$year <- year(global$data$date)
-    df$month <- month(global$data$date)
-    return(df)
+    dfm <- dfm(tokens_lookup(req(global$tokens), data_dictionary_LSD2015))
+    dfm_convert(dfm)
   })
   
   observeEvent(input$test, {

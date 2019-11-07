@@ -47,8 +47,7 @@ uploadDic <- function(input, output, session) {
       skipEmptyRows = TRUE,
       rowNames = FALSE
     )
-    print(global$dic)
-    },
+  },
     ignoreNULL = TRUE)
 
   observeEvent(input$save, {
