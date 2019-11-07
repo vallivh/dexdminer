@@ -7,7 +7,6 @@ modifyDicUI <- function(id) {
     textInput(ns("name"), "Dictionary name:", width = "50%"),
     DTOutput(ns("table")),
     actionButton(ns("update"), "Create Dictionary"),
-    actionButton(ns("delete"), "Delete Dictionary"),
     actionButton(ns("add_row"), "Add row")
   )
 }
@@ -24,8 +23,6 @@ modifyDic <- function(input, output, session) {
     updateTextInput(session, "name", value = global$dicoll)
     updateActionButton(session, "update",
                        label = "Update dictionary")
-    updateActionButton(session, "delete",
-                       label = "Delete Dictionary")
   })
   
   observeEvent(input$add_row, {
@@ -52,13 +49,5 @@ modifyDic <- function(input, output, session) {
     updateActionButton(session, "update",
                        label = "Dictionary updated")
     global$dicoll <- input$name
-  })
-  
-  observeEvent(input$delete, {
-    global$mdic$drop()
-    v$dic <- data.frame(Words = c(NA))
-    updateActionButton(session, "delete",
-                       label = "Dictionary deleted")
-    updateTextInput(session, "name", value = NA)
   })
 }

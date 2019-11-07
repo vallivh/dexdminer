@@ -14,7 +14,8 @@ selectDicUI <- function(id) {
                 choices = c("", dicoll),
                 selected = ""),
     uiOutput(ns("selectVar")),
-    actionButton(ns("load"), "Load Dictionary")
+    actionButton(ns("load"), "Load Dictionary"),
+    actionButton(ns("delete"), "Delete Dictionary")
   )
 }
 
@@ -23,19 +24,22 @@ selectDic <- function(input, output, session) {
 
   # when a new file is uploaded, it is automatically added and pre-selected
   observeEvent(global$dicoll, ignoreInit = TRUE, {
-    dicoll <- getCollections(mdic)
+    mdic <<- mongoDB(db = "dics")
+    dicoll <<- getCollections(mdic)
     updateSelectInput(session, "selectDic",
                       choices = dicoll,
                       selected = global$dicoll)
   })
 
-  # when switching between collections, this resets the button and global$coll
+  # when switching between dic collections, this resets the button and global$dicoll
   observeEvent(input$selectDic, ignoreInit = TRUE, {
     global$dicoll <- NULL
+    global$mdic <- mongoDB(collection = input$selectDic, db = "dics")
     updateActionButton(session, "load", label = "Load Dictionary")
+    updateActionButton(session, "delete", label = "Delete Dictionary")
   })
 
-  # when Load Button is clicked, save selected data to global data frame or display an error message
+  # when Load Button is clicked, save selected data to global dic data frame or display an error message
   observeEvent(input$load, {
 
     if (is.empty(input$selectDic))
@@ -45,7 +49,6 @@ selectDic <- function(input, output, session) {
                  type = "warning",
                  timer = 5000)
     else {
-      global$mdic <- mongoDB(collection = input$selectDic, db = "dics")
       dur <- global$mdic$info()$stats$count / 65000
       if (dur > 4)
         showNotification("The data is processing and will be displayed shortly.",
@@ -55,5 +58,14 @@ selectDic <- function(input, output, session) {
       global$dic <- global$mdic$find('{}', fields = '{}')
       updateActionButton(session, "load", label = "Loaded to RAM")
     }
+  })
+  
+  # deletes the dictionary that is currently selected from MongoDB and updates button
+  observeEvent(input$delete, {
+    global$mdic$drop()
+    global$dic <- data.frame(Words = c(NA))
+    global$dicoll <- ""
+    updateActionButton(session, "delete",
+                       label = "Dictionary deleted")
   })
 }
