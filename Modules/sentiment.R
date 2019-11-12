@@ -9,7 +9,6 @@ sentimentUI <- function(id) {
   tagList(
     actionButton(ns("show"), "Show Sentiment", icon = icon("smile")),
     actionButton(ns("save"), "Save Results"),
-    actionButton(ns("test"), "test"),
     plotlyOutput(ns("sentiPlot"))
   )
 }
@@ -21,10 +20,6 @@ sentiment <- function(input, output, session) {
     dfm <- dfm(tokens_lookup(req(global$tokens), data_dictionary_LSD2015))
     dfm_convert(dfm)
   })
-  
-  observeEvent(input$test, {
-    print(str(df()))
-  })
 
   # Beim Klick auf den Save Button werden die df() Daten in MongoDB gespeichert
   # es werden neue Felder 'positive' und 'negative' angelegt
@@ -35,7 +30,10 @@ sentiment <- function(input, output, session) {
               query = paste0('{"_id":{"$oid":"', x[1], '"}}'),
               update = paste0('{"$set": {"positive": ', x[3], ', "negative": ', x[2], '}}'))
             })
-    global$m$index(add = parseIndex(c("positive", "negative")))
+    apply(c("positive", "negative"), 1,
+          function(x) {
+            global$m$index(add = parseIndex(x[1]))
+          })
     global$data <- global$m$find('{}', fields = '{}')
   })
 
@@ -55,10 +53,8 @@ sentiment <- function(input, output, session) {
       df <- jsonlite::flatten(df)
       colnames(df) <- lapply(colnames(df), function(x){sub("_id.", "", x)})
       df["negative"] <- -df["negative"]
-      print("Datenbank")
     } else {
       df <- df()
-      print("RAM")
     }
 
     output$sentiPlot <- renderPlotly({

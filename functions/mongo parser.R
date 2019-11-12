@@ -21,7 +21,6 @@ parseFields <- function(flist){
 }
 
 # makes creating a text index a lot easier
-# could be expanded to indexes in general
 parseIndex <- function(field, text = FALSE){
   if (text)
     end <- '"text"'
