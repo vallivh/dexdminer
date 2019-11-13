@@ -18,36 +18,47 @@ timeseriesUI <- function(id) {
     radioButtons(
       ns("by"),
       label = "Plot by",
-      choiceNames = c("none", "overall rating"),
-      choiceValues = c("asin", "overall")
+      choiceNames = c("none"),
+      choiceValues = c(NA)
     ),
     actionButton(ns("update"), label = "Update Plot"),
-    plotOutput(ns("bar_chart"))
+    plotOutput(ns("bar_chart")),
+    em("requires a Tokens object")
   )
 }
 
 
 timeseries <- function(input, output, session) {
   
+  observeEvent(global$tokens, {
+    choices <- names(docvars(global$tokens))
+    choices <- choices[choices != "date"]
+    updateRadioButtons(session, "by", 
+                       choiceNames = choices,
+                       choiceValues = choices)
+  })
+  
   observeEvent(input$update, {
+    
+    print(input$by)
     
     # get the aggregrated data from mongoDB and clean the dataframe
     df <- global$m$aggregate(
       paste0(
-        '[{"$match":{"$text":{"$search": "', input$word,'"}}},
+        '[{"$match":{"$text":{"$search": "', req(input$word),'"}}},
           {"$group":{
               "_id": {"', input$intervall, '": {"$', input$intervall, '": "$date"},
-                      "rating": "$overall"},
+                      "', input$by, '": "$', input$by, '"},
               "count": {"$sum": 1}}},
           {"$sort": {"_id": 1}}]'
       )
     )
     df <- jsonlite::flatten(df)
     colnames(df) <- lapply(colnames(df), function(x){sub("_id.", "", x)})
-    
+
     output$bar_chart <- renderPlot({
-      ggplot(df, aes(y=count, x=month)) +
-        geom_bar(aes(fill=rating), stat="identity")
+      ggplot(df, aes_string(y="count", x=isolate(input$intervall))) +
+        geom_bar(aes_string(fill=isolate(input$by)), stat="identity")
     })
   })
 }
