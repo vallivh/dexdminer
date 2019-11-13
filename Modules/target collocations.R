@@ -38,7 +38,8 @@ targetColloUI <- function(id) {
       width = 600
     ),
     actionButton(ns("refresh_tc"), label = "Update Collocation"),
-    DTOutput(ns("target_coll_out"))
+    DTOutput(ns("target_coll_out")),
+    em("requires a Tokens object")
   )
 }
 

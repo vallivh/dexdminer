@@ -51,7 +51,8 @@ tmUI <- function(id) {
       width = '200px'
     ),
     actionButton(ns("start"), label = "Apply"),
-    DTOutput(ns("datatable_r"))
+    DTOutput(ns("datatable_r")),
+    em("requires a DFM object")
   )
   
 }

@@ -9,7 +9,8 @@ sentimentUI <- function(id) {
   tagList(
     actionButton(ns("show"), "Show Sentiment", icon = icon("smile")),
     actionButton(ns("save"), "Save Results"),
-    plotlyOutput(ns("sentiPlot"))
+    plotlyOutput(ns("sentiPlot")),
+    em("requires a Tokens object")
   )
 }
 

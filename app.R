@@ -69,7 +69,7 @@ ui <- dashboardPage(
     menuItem("Preprocessing",
              tabName = "preprocessing",
              icon = icon("edit")),
-    menuItem("Dictionary",
+    menuItem("Dictionary Selection",
              tabName = "dictionary",
              icon = icon("book")),
     menuItem("Compare Dictionares",
