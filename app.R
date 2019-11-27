@@ -5,12 +5,15 @@ library(mongolite)
 library(ndjson)
 library(rapportools)
 library(anytime)
+library(lubridate)
 library(quanteda)
 library(spacyr)
 library(plotly)
+library(openxlsx)
+library(DT)
+library(topicmodels)
 
-docker = TRUE
-assign("global_db", "data", envir = .GlobalEnv)
+docker = T
 
 if (docker) {
   assign("mongo_ip", "mongodb", envir = .GlobalEnv)
@@ -24,24 +27,33 @@ source("functions/mongo parser.R")
 source("modules/upload.R")
 source("modules/select.R")
 source("modules/dataprep.R")
-source("modules/preprocessing.R")
 source("modules/display table.R")
+source("modules/preprocessing.R")
+source("modules/upload dic.R")
+source("modules/select dic.R")
+source("modules/modify dic.R")
+source("modules/compare dics.R")
+source("modules/info.R")
 source("modules/timeseries.R")
 source("modules/collocations.R")
+source("modules/target collocations.R")
 source("modules/sentiment.R")
-source("modules/info.R")
+source("modules/topic modelling.R")
 
 #Erzeugung der gemeinsamen Datenbasis
 assign(
   "global",
   reactiveValues(
-    m = mongoDB(),
+    m = mongoDB(db = "data"),
     data = NULL,
     coll = NULL,
     corpus = NULL,
     tokens = NULL,
     dfm = NULL,
-    nlp = NULL
+    nlp = NULL,
+    mdic = mongoDB(db = "dics"),
+    dic = NULL,
+    dicoll = NULL
   ),
   envir = .GlobalEnv
 )
@@ -51,26 +63,35 @@ assign(
 ui <- dashboardPage(
   dashboardHeader(title = "DexDminer"),
   dashboardSidebar(sidebarMenu(
-    menuItem(
-      "Data Selection",
-      tabName = "data_selection",
-      icon = icon("database")
-    ),
+    menuItem("Data Selection",
+             tabName = "data_selection",
+             icon = icon("database")),
     menuItem("Preprocessing",
              tabName = "preprocessing",
              icon = icon("edit")),
+    menuItem("Dictionary Selection",
+             tabName = "dictionary",
+             icon = icon("book")),
+    menuItem("Compare Dictionares",
+             tabName = "compare_dics",
+             icon = icon("book")),
     menuItem("Timeseries",
              tabName = "timeseries",
              icon = icon("history")),
     menuItem("Collocations",
              tabName = "collocations",
              icon = icon("text-size", lib = "glyphicon")),
-    menuItem(
-      "Sentiment Analysis",
-      tabName = "sentiment",
-      icon = icon("smile")
+    menuItem("Target Collocations",
+             tabName = "target_collo",
+             icon = icon("bullseye")),
+    menuItem("Sentiment Analysis",
+             tabName = "sentiment",
+             icon = icon("smile")),
+    menuItem("Topic Modelling",
+             tabName = "topic",
+             icon = icon("project-diagram"))
     )
-  )),
+  ),
   dashboardBody(tabItems(
     tabItem(
       tabName = "data_selection",
@@ -112,15 +133,49 @@ ui <- dashboardPage(
             ),
             column(4,
                    infoUI("prep_info"))),
+    tabItem(
+      tabName = "dictionary",
+      column(
+        4,
+        box(
+          title = "Upload a dictionary...",
+          uploadDicUI("upDic"),
+          collapsible = TRUE,
+          collapsed = TRUE,
+          width = 12
+        ),
+        box(title = "...or select an existing one.",
+            selectDicUI("selDic"),
+            width = 12
+        )
+      ),
+      column(
+        6,
+        box(
+          title = "Modify the dictionary",
+          modifyDicUI("modDic"),
+          width = 12
+        )
+      )
+    ),
+    tabItem(tabName = "compare_dics",
+            box(title = "Compare two dictionaries",
+                compareDicsUI("compare"))),
     tabItem(tabName = "timeseries",
             box(title = "Single Word Timeseries",
                 timeseriesUI("timeseries"))),
     tabItem(tabName = "collocations",
             box(title = "Collocations",
                 collocationUI("collocations"))),
+    tabItem(tabName = "target_collo",
+            box(title = "Target Collocations",
+                targetColloUI("target"))),
     tabItem(tabName = "sentiment",
             box(title = "Sentiment Analysis",
-                sentimentUI("sentiment")))
+                sentimentUI("sentiment"))),
+    tabItem(tabName = "topic",
+            box(title = "Topic Modelling",
+                tmUI("tm")))
   ))
 )
 
@@ -130,11 +185,17 @@ server <- function(input, output, session) {
   callModule(dataprep, "data")
   observeEvent(global$data, {
     callModule(displayTable, "table", global$data)
-    })
+  })
   callModule(preprocess, "prep")
+  callModule(uploadDic, "upDic")
+  callModule(selectDic, "selDic")
+  callModule(modifyDic, "modDic")
+  callModule(compareDics, "compare")
   callModule(timeseries, "timeseries")
   callModule(collocation, "collocations")
+  callModule(targetCollo, "target")
   callModule(sentiment, "sentiment")
+  callModule(tm, "tm")
   callModule(info, "data_info")
   callModule(info, "prep_info")
   session$onSessionEnded(stopApp)

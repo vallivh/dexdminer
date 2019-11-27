@@ -24,7 +24,8 @@ collocationUI <- function(id) {
       width = 700
       
     ),
-    DT::dataTableOutput(ns("coll_table"))
+    DT::dataTableOutput(ns("coll_table")),
+    em("requires a Tokens object")
   )
 }
 

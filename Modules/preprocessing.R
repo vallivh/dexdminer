@@ -67,7 +67,7 @@ preprocessUI <- function(id) {
 preprocess <- function(input, output, session) {
 
   # setzt die Buttons beim Auswählen einer anderen Collection zurück
-  observeEvent(global$coll, event.env = .GlobalEnv, {
+  observeEvent(global$coll, {
     updateActionButton(session, "createTokens", label = "Create Tokens")
     updateActionButton(session, "createDFM", label = "Create DFM")
     updateActionButton(session, "createNLP", label = "Create NLP Set")

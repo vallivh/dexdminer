@@ -1,7 +1,7 @@
 library(mongolite)
 
 # makes connecting to MongoDB a lot easier, default db should be changed here
-mongoDB <- function(collection = NULL, db = global_db) {
+mongoDB <- function(collection = NULL, db = "data") {
   uri = paste0("mongodb://", mongo_ip, ":27017/")
   if (is.null(collection)) {
     mongo(db = db,
@@ -21,7 +21,6 @@ parseFields <- function(flist){
 }
 
 # makes creating a text index a lot easier
-# could be expanded to indexes in general
 parseIndex <- function(field, text = FALSE){
   if (text)
     end <- '"text"'
