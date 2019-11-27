@@ -34,7 +34,7 @@ RUN R -e "install.packages(c('openxlsx', \
 # copy server config and app code to shiny server
 COPY ./shinyserver/shiny-server.conf /srv/shiny-server/shiny-server.conf
 COPY ./shinyserver/shiny-server.sh /usr/bin/shiny-server.sh
-COPY . /srv/shiny-server/
+COPY . /srv/shiny-server/dexdminer
 
 # expose shiny server port
 EXPOSE 3838

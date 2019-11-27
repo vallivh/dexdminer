@@ -2,14 +2,12 @@ version: '3.7'
 
 services:
   app:
-    build:
-      context: .
+    image: vallivh/dexdminer
     container_name: app
     ports:
       - 80:3838
     volumes:
-      - .:/srv/shiny-server/
-      - shiny_logs:/var/log/shiny-server
+      - .:/srv/shiny-server/dexdminer
       - packages:/usr/local/lib/R/site-library
       - conda:/opt/conda
     depends_on:
@@ -31,12 +29,13 @@ services:
     volumes:
       - conda:/opt/conda
   rstudio:
-    image: rocker/rstudio:3.6.1
+    image: rocker/rstudio
     container_name: rstudio
     restart: on-failure
     environment:
       - PASSWORD=test
       - DISABLE_AUTH=TRUE
+#      - ADD=shiny
     ports:
       - 8787:8787
     volumes:
@@ -48,7 +47,6 @@ services:
       - spacy
 
 volumes:
-  shiny_logs:
   db:
   packages:
   conda:
