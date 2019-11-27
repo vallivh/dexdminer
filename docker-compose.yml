@@ -16,7 +16,7 @@ services:
       - mongodb
       - spacy
   mongodb:
-    image: mongo:4.2.0
+    image: mongo:4.2.1
     container_name: mongodb
     restart: always
     ports:
@@ -24,7 +24,7 @@ services:
     volumes:
       - db:/data/db
   spacy:
-    image: vallivh/spacyr:1.1
+    image: vallivh/spacyr:4.7.12
     container_name: spacy
     ports:
       - 8888:8888
