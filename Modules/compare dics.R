@@ -19,11 +19,10 @@ compareDicsUI <- function(id, dictionary_id) {
     selectInput(ns("intervall"),
                 label = "Intervall",
                 choices = c(month = "month", year = "year")),
-    actionButton(ns("refresh_plot_data"), label = "Update Plot"),
     radioButtons(ns("plot_style"),
                  label = "Choose your Barchart Style",
-                 choices = c("Gouped Barchart" = "group", "Stacked Barchart" = "stack")
-    ),
+                 choices = c("Gouped Barchart" = "group", "Stacked Barchart" = "stack")),
+    actionButton(ns("refresh_plot_data"), label = "Update Plot"),
     plotlyOutput(ns("bar_chart_dicts"))
   )
 }
