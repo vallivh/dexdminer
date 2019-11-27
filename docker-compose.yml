@@ -48,7 +48,7 @@ services:
       - spacy
 
 volumes:
-  shiny_logs:
   db:
   packages:
   conda:
+  shiny_logs:
