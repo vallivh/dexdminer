@@ -3,7 +3,7 @@ This image creates a Docker container that
 generates a conda environment which can be used
 with the R package [spacyr](https://spacyr.quanteda.io).
 
-It is based on the `continuumio/miniconda3` image and
+It is based on the [`continuumio/miniconda3`](https://hub.docker.com/r/continuumio/miniconda3) image and
 activates an environment called `spacy_condaenv` with
 Python 3.6 and spaCy as well as the latest
 Englisch and German language models installed.
